@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keymap/keymap.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,29 +40,40 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+    const List<KeyStrokeRep> shortcuts = [
+      KeyStrokeRep('enter','Run the animation', isAltPressed: true), KeyStrokeRep('R', 'play in reverse', isControlPressed: true),
+      KeyStrokeRep('enter','Run the animation', isMetaPressed: true), KeyStrokeRep('R', 'play in reverse', isControlPressed: true, isShiftPressed: true),
+      KeyStrokeRep('enter','Run the animation', isAltPressed: true), KeyStrokeRep('R', 'play in reverse', isControlPressed: true),
+      KeyStrokeRep('enter','Run the animation', isShiftPressed: true, isAltPressed: true, isMetaPressed: true), KeyStrokeRep('R', 'play in reverse', isControlPressed: true),
+      KeyStrokeRep('d', 'Debug the animation', isMetaPressed: true)
+    ];
+
+    return KeyboardWidget(
+      keyMap: shortcuts,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text(
+                'You have pushed the button this many times:',
+              ),
+              Text(
+                '$_counter',
+                style: Theme.of(context).textTheme.headline4,
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _incrementCounter,
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ), // This trailing comma makes auto-formatting nicer for build methods.
+      )
     );
   }
 }
