@@ -18,6 +18,12 @@ class KeyStrokeRep {
   bool get isShiftPressed => keyActivator.shift;
   bool get isAltPressed => keyActivator.alt;
   String get label => keyActivator.trigger.keyLabel;
+
+  bool matchesEvent(RawKeyEvent event) {
+    return event.logicalKey == keyActivator.trigger && isControlPressed == event.isControlPressed &&
+    isMetaPressed == event.isMetaPressed && isShiftPressed == event.isShiftPressed &&
+    isAltPressed == event.isAltPressed;
+  }
 }
 
 class KeyboardWidget extends StatefulWidget {
@@ -38,7 +44,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   late OverlayEntry _overlayEntry;
   bool showingOverlay = false;
 
-  static const TextStyle _whiteStyle = TextStyle(color: Color(0xAAFFFFFF));
+  static const TextStyle _whiteStyle = TextStyle(color: Colors.white);
   // static const TextStyle _boldStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
   static const TextStyle _blackStyle =TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold);
 
@@ -74,7 +80,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   Widget _getShortcutWidget(String text, String description, {String? modifiers}) {
     List<Widget> widgets = [_getBubble(text), const SizedBox(width: 4),
       Text(description, style: _whiteStyle,)];
-    if (modifiers != null) {
+    if (modifiers != null && modifiers.isNotEmpty) {
       widgets.insert(0, _getBubble(modifiers));
       widgets.insert(1, const SizedBox(width: 4,));
     }
@@ -121,6 +127,15 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     return buffer.toString();
   }
 
+  KeyStrokeRep? _findMatch(RawKeyEvent event) {
+    for (KeyStrokeRep rep in widget.keyMap) {
+      if (rep.matchesEvent(event)) {
+        return rep;
+      }
+    }
+    return null;
+  }
+
   OverlayEntry _buildOverlay() {
     List<Widget> shortcuts = [];
     for (KeyStrokeRep keyEvent in widget.keyMap) {
@@ -143,9 +158,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
           return Positioned(
               child: GestureDetector(
                 onTap: () {
-                  setState(() {
-                    _overlayEntry.remove();
-                  });
+                  _hideOverlay();
                 },
                 child: Container(
                   alignment: Alignment.center,
@@ -198,27 +211,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         if (event.runtimeType == RawKeyUpEvent) {
           LogicalKeyboardKey key = event.logicalKey;
 
-          // if (key == LogicalKeyboardKey.arrowLeft) {
-          //   double v = widget.controller.value;
-          //   widget.controller.value = max(0, v - .1);
-          // }
-          // else if (key == LogicalKeyboardKey.arrowRight) {
-          //   double v = widget.controller.value;
-          //   widget.controller.value = min(1.0, v + .1);
-          // }
-          // else if (key == LogicalKeyboardKey.enter) {
-          //   if (widget.controller.isAnimating) {
-          //     widget.controller.stop();
-          //   }
-          //   else {
-          //     widget.controller.forward();
-          //   }
-          // }
-          // else if (key.keyLabel == 'B' && event.isControlPressed) {
-          //   widget.controller.reverse();
-          // }
           if (key == LogicalKeyboardKey.f1) {
-            print('PRESSED F1');
             setState(() {
               if (!showingOverlay) {
                 showingOverlay = true;
@@ -229,9 +222,16 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 _hideOverlay();
               }
             }
-            );}
+            );
+          }
           else if (key == LogicalKeyboardKey.escape) {
             _hideOverlay();
+          }
+          else {
+            KeyStrokeRep? rep = _findMatch(event);
+            if (rep != null) {
+              rep.callback();
+            }
           }
         }
       },);

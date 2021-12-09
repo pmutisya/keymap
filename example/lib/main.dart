@@ -39,13 +39,35 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _decrementCounter() {
+    setState(() {
+      _counter--;
+    });
+  }
+
+  void increaseBy(int amount) {
+    setState(() {
+      _counter += 10;
+    });
+  }
+
+  void _resetCounter() {
+    setState(() {
+      _counter = 0;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     List<KeyStrokeRep> shortcuts = [
-      KeyStrokeRep(LogicalKeyboardKey.enter,'Run the animation', (){}, isAltPressed: true), KeyStrokeRep(LogicalKeyboardKey.keyR, 'play in reverse', (){}, isControlPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.keyP,'Play a sound', (){},isMetaPressed: true), KeyStrokeRep(LogicalKeyboardKey.keyC, 'play in reverse', (){}, isControlPressed: true, isShiftPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.keyD,'Delete the animation', (){}, isAltPressed: true), KeyStrokeRep(LogicalKeyboardKey.keyV, 'paste the stuff', (){},  isControlPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.keyS, 'Save the animation', (){}, isMetaPressed: true)
+      KeyStrokeRep(LogicalKeyboardKey.keyI,'increment the counter', () => _incrementCounter(),),
+      KeyStrokeRep(LogicalKeyboardKey.keyD, 'decrement the counter', () => _decrementCounter()),
+      KeyStrokeRep(LogicalKeyboardKey.enter,'increase by 10', (){
+        increaseBy(10);
+      },isControlPressed: true),
+      KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter', (){
+        _resetCounter();
+      },isMetaPressed: true),
     ];
 
     return KeyboardWidget(
