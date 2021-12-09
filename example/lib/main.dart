@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:keymap/keymap.dart';
 
 void main() {
@@ -40,12 +41,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    const List<KeyStrokeRep> shortcuts = [
-      KeyStrokeRep('enter','Run the animation', isAltPressed: true), KeyStrokeRep('R', 'play in reverse', isControlPressed: true),
-      KeyStrokeRep('enter','Run the animation', isMetaPressed: true), KeyStrokeRep('R', 'play in reverse', isControlPressed: true, isShiftPressed: true),
-      KeyStrokeRep('enter','Run the animation', isAltPressed: true), KeyStrokeRep('R', 'play in reverse', isControlPressed: true),
-      KeyStrokeRep('enter','Run the animation', isShiftPressed: true, isAltPressed: true, isMetaPressed: true), KeyStrokeRep('R', 'play in reverse', isControlPressed: true),
-      KeyStrokeRep('d', 'Debug the animation', isMetaPressed: true)
+    List<KeyStrokeRep> shortcuts = [
+      KeyStrokeRep(LogicalKeyboardKey.enter,'Run the animation', (){}, isAltPressed: true), KeyStrokeRep(LogicalKeyboardKey.keyR, 'play in reverse', (){}, isControlPressed: true),
+      KeyStrokeRep(LogicalKeyboardKey.keyP,'Play a sound', (){},isMetaPressed: true), KeyStrokeRep(LogicalKeyboardKey.keyC, 'play in reverse', (){}, isControlPressed: true, isShiftPressed: true),
+      KeyStrokeRep(LogicalKeyboardKey.keyD,'Delete the animation', (){}, isAltPressed: true), KeyStrokeRep(LogicalKeyboardKey.keyV, 'paste the stuff', (){},  isControlPressed: true),
+      KeyStrokeRep(LogicalKeyboardKey.keyS, 'Save the animation', (){}, isMetaPressed: true)
     ];
 
     return KeyboardWidget(

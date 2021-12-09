@@ -6,15 +6,18 @@ import 'package:flutter/services.dart';
 
 @immutable
 class KeyStrokeRep {
-  final bool isAltPressed;
-  final bool isControlPressed;
-  final bool isMetaPressed;
-  final bool isShiftPressed;
-  final String character;
+  final SingleActivator keyActivator;
   final String description;
-  const KeyStrokeRep(this.character, this.description, {this.isAltPressed=false, this.isControlPressed = false,
-    this.isMetaPressed = false, this.isShiftPressed = false});
+  final VoidCallback callback;
+  KeyStrokeRep(LogicalKeyboardKey keyStroke, this.description, this.callback,
+      {bool isControlPressed = false, bool isMetaPressed = false, bool isShiftPressed = false, bool isAltPressed = false}):
+      keyActivator = SingleActivator(keyStroke, control: isControlPressed, shift: isShiftPressed, alt: isAltPressed, meta: isMetaPressed);
 
+  bool get isControlPressed => keyActivator.control;
+  bool get isMetaPressed => keyActivator.meta;
+  bool get isShiftPressed => keyActivator.shift;
+  bool get isAltPressed => keyActivator.alt;
+  String get label => keyActivator.trigger.keyLabel;
 }
 
 class KeyboardWidget extends StatefulWidget {
@@ -123,7 +126,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     for (KeyStrokeRep keyEvent in widget.keyMap) {
       String description = keyEvent.description;
       String modifier = _getModifiers(keyEvent);
-      shortcuts.add(_getShortcutWidget(keyEvent.character, description, modifiers: modifier));
+      shortcuts.add(_getShortcutWidget(keyEvent.label, description, modifiers: modifier));
     }
 
     Size size = MediaQuery.of(context).size;
@@ -222,19 +225,22 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 _overlayEntry = _buildOverlay();
                 Overlay.of(context)!.insert(_overlayEntry);
               }
-              else if (_overlayEntry != null){
-                _overlayEntry.remove();
+              else {
+                _hideOverlay();
               }
             }
             );}
           else if (key == LogicalKeyboardKey.escape) {
-            setState(() {
-              showingOverlay = false;
-              _overlayEntry.remove();
-            });
+            _hideOverlay();
           }
         }
       },);
+  }
+  void _hideOverlay() {
+    setState(() {
+      showingOverlay = false;
+      _overlayEntry.remove();
+    });
   }
 }
 
