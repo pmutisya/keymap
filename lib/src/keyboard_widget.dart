@@ -26,13 +26,23 @@ class KeyStrokeRep {
   }
 }
 
+/// A keymap widget
+///
 class KeyboardWidget extends StatefulWidget {
   final bool hasFocus;
   final Widget child;
   final List<KeyStrokeRep> keyMap;
+  final LogicalKeyboardKey showDismissKey;
 
+  /// Creates a new KeyboardWidget with a list of Keystrokes and associated
+  /// functions [keyMap], a required [child] widget and an optional
+  /// keystroke to show and dismiss the displayed map, [showDismissKey].
+  ///
+  /// By default the F1 keyboard key is used to show and dismiss the keymap
+  /// display.
+  ///
   const KeyboardWidget({Key? key, required this.keyMap, this.hasFocus = false,
-    required this.child,}) : super(key: key);
+    required this.child, this.showDismissKey=LogicalKeyboardKey.f1}) : super(key: key);
 
   @override
   _KeyboardWidgetState createState() => _KeyboardWidgetState();
@@ -44,9 +54,9 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   late OverlayEntry _overlayEntry;
   bool showingOverlay = false;
 
-  static const TextStyle _whiteStyle = TextStyle(color: Colors.white);
+  static const TextStyle _whiteStyle = TextStyle(color: Colors.white, fontSize: 12);
   // static const TextStyle _boldStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
-  static const TextStyle _blackStyle =TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.bold);
+  static const TextStyle _blackStyle = TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.normal);
 
   @override
   void initState() {
@@ -79,7 +89,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
 
   Widget _getShortcutWidget(String text, String description, {String? modifiers}) {
     List<Widget> widgets = [_getBubble(text), const SizedBox(width: 4),
-      Text(description, style: _whiteStyle,)];
+      Flexible(child: Text(description, style: _whiteStyle, overflow: TextOverflow.ellipsis,))];
     if (modifiers != null && modifiers.isNotEmpty) {
       widgets.insert(0, _getBubble(modifiers));
       widgets.insert(1, const SizedBox(width: 4,));
@@ -170,11 +180,14 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                   child: Material(
                       color: Colors.transparent,
                       child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 18),
                         alignment: Alignment.center,
-                        width: 750, height: 30.0*rows+40,
-                        decoration: BoxDecoration(color: Colors.black54,
+                        width: 750, height: 36.0*rows+40,
+                        decoration: BoxDecoration(color: const Color(0xDD2a2a2a),
                           borderRadius: BorderRadius.circular(18),
-                          // border: Border.all(color: Colors.red),
+                          boxShadow: const [
+                            BoxShadow(color: Color(0xDD2a2a2a), blurRadius: 50, spreadRadius: 5)
+                          ]
                         ),
                         child: grid,
                         // child:const Text('OVERLAY', style: TextStyle(color: Colors.white),)
@@ -211,7 +224,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         if (event.runtimeType == RawKeyUpEvent) {
           LogicalKeyboardKey key = event.logicalKey;
 
-          if (key == LogicalKeyboardKey.f1) {
+          if (key == widget.showDismissKey) {
             setState(() {
               if (!showingOverlay) {
                 showingOverlay = true;

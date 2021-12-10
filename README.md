@@ -10,28 +10,44 @@ For general information about developing packages, see the Dart guide for
 and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
+# Keymap
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+A keymap widget letting a developer easily allow end users to use keyboard
+shortcuts in any app.
+
+## Getting started
+[![pub package](https://img.shields.io/pub/v/cupertino_icons.svg)](https://pub.dev/packages/cupertino_icons)
+
+```
+dependencies:
+  keymap: ^<latest-version>
+```
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+- Clear, readable display of keymaps over any application
+- Insert at any point in the widget tree
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
 ```dart
-const like = 'sample';
-```
+  @override
+Widget build(BuildContext context) {
+  List<KeyStrokeRep> shortcuts = [
+    KeyStrokeRep(LogicalKeyboardKey.keyI,'increment the counter', () => _incrementCounter(),),
+    KeyStrokeRep(LogicalKeyboardKey.keyD, 'decrement the counter', () => _decrementCounter()),
+    KeyStrokeRep(LogicalKeyboardKey.enter,'increase by 10', (){
+      increaseBy(10);
+    },isControlPressed: true),
+    KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter. And here is some very long text to test overflow', (){
+      _resetCounter();
+    },isMetaPressed: true),
+  ];
 
+  return KeyboardWidget(
+      keyMap: shortcuts,
+```
+![example app](doc/screeshot.png)
 ## Additional information
 
 TODO: Tell users more about the package: where to find more information, how to 

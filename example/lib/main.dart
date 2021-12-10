@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
       KeyStrokeRep(LogicalKeyboardKey.enter,'increase by 10', (){
         increaseBy(10);
       },isControlPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter', (){
+      KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter. And here is some very long text to test overflow', (){
         _resetCounter();
       },isMetaPressed: true),
     ];
