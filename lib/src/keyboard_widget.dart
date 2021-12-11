@@ -1,14 +1,21 @@
 import 'dart:io';
-import 'dart:math' show sqrt;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+///A combination of a (e.g., control-shift-A), a description
+///of what action that keystroke should trigger (e.g., "select all text"),
+///and a callback method to be invoked.
 @immutable
 class KeyStrokeRep {
   final SingleActivator keyActivator;
   final String description;
   final VoidCallback callback;
+
+  ///Creates a KeystrokeRep with the given LogicalKeyboardKey [keyStroke],
+  ///[description] and [callback] method. Includes optional bool values (defaulting
+  ///to false) for key modifiers for meta [isMetaPressed], shift [isShiftPressed],
+  ///alt [isAltPressed]
   KeyStrokeRep(LogicalKeyboardKey keyStroke, this.description, this.callback,
       {bool isControlPressed = false, bool isMetaPressed = false, bool isShiftPressed = false, bool isAltPressed = false}):
       keyActivator = SingleActivator(keyStroke, control: isControlPressed, shift: isShiftPressed, alt: isAltPressed, meta: isMetaPressed);
@@ -33,16 +40,23 @@ class KeyboardWidget extends StatefulWidget {
   final Widget child;
   final List<KeyStrokeRep> keyMap;
   final LogicalKeyboardKey showDismissKey;
+  final int columnCount;
 
   /// Creates a new KeyboardWidget with a list of Keystrokes and associated
   /// functions [keyMap], a required [child] widget and an optional
   /// keystroke to show and dismiss the displayed map, [showDismissKey].
   ///
+  /// The number of columns used to display the options can be optionally
+  /// chosen. It defaults to one column.
+  ///
   /// By default the F1 keyboard key is used to show and dismiss the keymap
   /// display.
   ///
   const KeyboardWidget({Key? key, required this.keyMap, this.hasFocus = false,
-    required this.child, this.showDismissKey=LogicalKeyboardKey.f1}) : super(key: key);
+    required this.child, this.showDismissKey=LogicalKeyboardKey.f1, this.columnCount = 1}) :
+    assert (columnCount > 0),
+    super(key: key)
+  ;
 
   @override
   _KeyboardWidgetState createState() => _KeyboardWidgetState();
@@ -146,6 +160,9 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     return null;
   }
 
+  static const double horizontalMargin = 16.0;
+  static const double rowHeight = 40.0;
+
   OverlayEntry _buildOverlay() {
     List<Widget> shortcuts = [];
     for (KeyStrokeRep keyEvent in widget.keyMap) {
@@ -154,17 +171,24 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
       shortcuts.add(_getShortcutWidget(keyEvent.label, description, modifiers: modifier));
     }
 
-    Size size = MediaQuery.of(context).size;
-    int cols = sqrt(shortcuts.length).toInt();
-    int rows = shortcuts.length~/cols;
+    MediaQueryData media = MediaQuery.of(context);
+    Size size = media.size;
+
+    EdgeInsets padding = media.padding;
+    // int cols = sqrt(shortcuts.length).toInt();
+    int rows = shortcuts.length~/widget.columnCount+1;
+
+    //the width used to display the actual help rectangle
+    double boxWidth = size.width - padding.horizontal - horizontalMargin*2;
     // print('COLS: $cols ROWS: $rows  TOTAL: ${shortcuts.length}');
     Widget grid = GridView.count(
-      crossAxisCount: cols, children: shortcuts,
-      childAspectRatio: 700/cols/40,
+      scrollDirection: Axis.vertical,
+      crossAxisCount: widget.columnCount, children: shortcuts,
+      childAspectRatio: (size.width - horizontalMargin*2)/widget.columnCount/rowHeight,
       shrinkWrap: true,);
     return OverlayEntry(
         builder: (context) {
-          EdgeInsets padding = MediaQuery.of(context).padding;
+          // EdgeInsets padding = MediaQuery.of(context).padding;
           return Positioned(
               child: GestureDetector(
                 onTap: () {
@@ -172,17 +196,18 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 },
                 child: Container(
                   alignment: Alignment.center,
-                  height: size.width - padding.left - padding.right - 40,
-                  width: size.height - padding.top - padding.bottom - 40,
+                  width: size.width, // - padding.left - padding.right - 40,
+                  height: size.height, // - padding.top - padding.bottom - 40,
                   decoration: const BoxDecoration(
-                    color: Colors.black12,
+                    color: Colors.black26,
                   ),
                   child: Material(
                       color: Colors.transparent,
                       child: Container(
+                        margin: const EdgeInsets.all(horizontalMargin),
                         padding: const EdgeInsets.symmetric(horizontal: 18),
                         alignment: Alignment.center,
-                        width: 750, height: 36.0*rows+40,
+                        width: boxWidth, height: rowHeight*rows+horizontalMargin*2,
                         decoration: BoxDecoration(color: const Color(0xDD2a2a2a),
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: const [

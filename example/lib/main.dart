@@ -61,17 +61,23 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     List<KeyStrokeRep> shortcuts = [
       KeyStrokeRep(LogicalKeyboardKey.keyI,'increment the counter', () => _incrementCounter(),),
-      KeyStrokeRep(LogicalKeyboardKey.keyD, 'decrement the counter', () => _decrementCounter()),
-      KeyStrokeRep(LogicalKeyboardKey.enter,'increase by 10', (){
-        increaseBy(10);
-      },isControlPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter. And here is some very long text to test overflow', (){
-        _resetCounter();
-      },isMetaPressed: true),
+      KeyStrokeRep(LogicalKeyboardKey.keyD, 'decrement the counter', () => _decrementCounter(),
+        isShiftPressed: true, isAltPressed: true),
+      KeyStrokeRep(LogicalKeyboardKey.enter,'increase by 10',
+        (){
+          increaseBy(10);
+        },
+        isControlPressed: true),
+      KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter. And here '
+          'is some very long text to test overflow',
+        (){
+          _resetCounter();
+        },
+        isMetaPressed: true),
     ];
 
     return KeyboardWidget(
-      keyMap: shortcuts,
+      keyMap: shortcuts, columnCount: 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),

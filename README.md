@@ -47,7 +47,7 @@ Widget build(BuildContext context) {
   return KeyboardWidget(
       keyMap: shortcuts,
 ```
-![example app](doc/screeshot.png)
+![example app](doc/app_image.png)
 ## Additional information
 
 TODO: Tell users more about the package: where to find more information, how to 
