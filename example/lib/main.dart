@@ -68,8 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
           increaseBy(10);
         },
         isControlPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter. And here '
-          'is some very long text to test overflow',
+      KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter ',
         (){
           _resetCounter();
         },

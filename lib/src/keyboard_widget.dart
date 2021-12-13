@@ -41,6 +41,7 @@ class KeyboardWidget extends StatefulWidget {
   final List<KeyStrokeRep> keyMap;
   final LogicalKeyboardKey showDismissKey;
   final int columnCount;
+  final bool showMap;
 
   /// Creates a new KeyboardWidget with a list of Keystrokes and associated
   /// functions [keyMap], a required [child] widget and an optional
@@ -50,10 +51,16 @@ class KeyboardWidget extends StatefulWidget {
   /// chosen. It defaults to one column.
   ///
   /// By default the F1 keyboard key is used to show and dismiss the keymap
-  /// display.
+  /// display. If another key is preferred, set the [showDismissKey] to another
+  /// [LogicalKeyboardKey].
+  ///
+  /// If the help map should be displayed, set the parameter [showMap] to true.
+  /// This lets the implementer programmatically show the map.
   ///
   const KeyboardWidget({Key? key, required this.keyMap, this.hasFocus = false,
-    required this.child, this.showDismissKey=LogicalKeyboardKey.f1, this.columnCount = 1}) :
+    required this.child, this.showDismissKey=LogicalKeyboardKey.f1, this.columnCount = 1,
+    this.showMap = false,
+  }) :
     assert (columnCount > 0),
     super(key: key)
   ;
@@ -66,7 +73,7 @@ class KeyboardWidget extends StatefulWidget {
 class _KeyboardWidgetState extends State<KeyboardWidget> {
   late FocusNode _focusNode;
   late OverlayEntry _overlayEntry;
-  bool showingOverlay = false;
+  late bool showingOverlay;
 
   static const TextStyle _whiteStyle = TextStyle(color: Colors.white, fontSize: 12);
   // static const TextStyle _boldStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
@@ -76,6 +83,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   void initState() {
     super.initState();
     _focusNode = FocusNode();
+    showingOverlay = widget.showMap;
   }
 
   @override
@@ -93,7 +101,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   //returns a white rounded-rect surrounded with black text
   Widget _getBubble(String text) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       decoration: BoxDecoration(
         color: Colors.white, borderRadius: BorderRadius.circular(8),
       ),
@@ -111,6 +119,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     return Container(
         height: 20,
         padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(border: Border.all(color: Colors.red)),
         margin: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min, children: widgets,
@@ -179,9 +188,39 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     int rows = shortcuts.length~/widget.columnCount+1;
 
     //the width used to display the actual help rectangle
-    double boxWidth = size.width - padding.horizontal - horizontalMargin*2;
+    // double boxWidth = size.width - padding.horizontal - horizontalMargin*2;
     // print('COLS: $cols ROWS: $rows  TOTAL: ${shortcuts.length}');
-    Widget grid = GridView.count(
+    List<DataRow> tableRows = [];
+    for (KeyStrokeRep keyStrokeRep in widget.keyMap) {
+      String modifiers = _getModifiers(keyStrokeRep);
+
+      DataCell modifierCell = modifiers.isNotEmpty? DataCell(_getBubble(modifiers)) : DataCell.empty;
+      DataRow row = DataRow(cells: [
+        modifierCell,
+        DataCell(_getBubble(keyStrokeRep.label)),
+        DataCell(Text(keyStrokeRep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,))
+      ]);
+      tableRows.add(row);
+    }
+    Widget grid = Theme(
+      data: Theme.of(context).copyWith(
+        dividerColor: Colors.transparent, //const Color(0x11777777),
+      ),
+      child: DataTable(
+        decoration: BoxDecoration(color: const Color(0xFF0a0a0a),
+            border: Border.all(color: const Color(0xFF0a0a0a), width: 18),
+            borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(color: Color(0xDE2a2a2a), blurRadius: 50, spreadRadius: 5)
+          ]
+        ),
+        dividerThickness: 1,
+        columns: [DataColumn(label: Container()), DataColumn(label: Container()), DataColumn(label: Container())],
+        rows: tableRows, dataRowHeight: 32, headingRowHeight: 2,
+      )
+    );
+
+    Widget grid2 = GridView.count(
       scrollDirection: Axis.vertical,
       crossAxisCount: widget.columnCount, children: shortcuts,
       childAspectRatio: (size.width - horizontalMargin*2)/widget.columnCount/rowHeight,
@@ -196,6 +235,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 },
                 child: Container(
                   alignment: Alignment.center,
+                  padding: const EdgeInsets.all(horizontalMargin),
                   width: size.width, // - padding.left - padding.right - 40,
                   height: size.height, // - padding.top - padding.bottom - 40,
                   decoration: const BoxDecoration(
@@ -203,20 +243,21 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                   ),
                   child: Material(
                       color: Colors.transparent,
-                      child: Container(
-                        margin: const EdgeInsets.all(horizontalMargin),
-                        padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: Center(child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
                         alignment: Alignment.center,
-                        width: boxWidth, height: rowHeight*rows+horizontalMargin*2,
-                        decoration: BoxDecoration(color: const Color(0xDD2a2a2a),
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: const [
-                            BoxShadow(color: Color(0xDD2a2a2a), blurRadius: 50, spreadRadius: 5)
-                          ]
-                        ),
+                        // width: boxWidth,
+                        // height: rowHeight*rows+horizontalMargin*2,
+                        // decoration: BoxDecoration(color: const Color(0xDD2a2a2a),
+                        //   borderRadius: BorderRadius.circular(18),
+                        //   boxShadow: const [
+                        //     BoxShadow(color: Color(0xDD2a2a2a), blurRadius: 50, spreadRadius: 5)
+                        //   ]
+                        // ),
                         child: grid,
                         // child:const Text('OVERLAY', style: TextStyle(color: Colors.white),)
                       )
+                    )
                   ),
                 ),
               )
@@ -228,12 +269,12 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   Widget build(BuildContext context) {
     if (kIsWeb || Platform.isFuchsia || Platform.isLinux || Platform.isMacOS ||
         Platform.isWindows) {
-      return LayoutBuilder(
-          builder:(context, constraints) {
+      // return LayoutBuilder(
+      //     builder:(context, constraints) {
             FocusScope.of(context).requestFocus(_focusNode);
             return _getKeyboardListener(context);
-          }
-      );
+          // }
+      // );
     }
     else {
       return widget.child;
@@ -259,8 +300,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
               else {
                 _hideOverlay();
               }
-            }
-            );
+            });
           }
           else if (key == LogicalKeyboardKey.escape) {
             _hideOverlay();
