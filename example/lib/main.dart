@@ -66,9 +66,15 @@ class _MyHomePageState extends State<MyHomePage> {
       KeyStrokeRep(LogicalKeyboardKey.enter,'increase by 10',
         (){ increaseBy(10); },
         isControlPressed: true),
+      KeyStrokeRep(LogicalKeyboardKey.arrowRight,'increase by 5',
+        (){ increaseBy(5); },
+        isControlPressed: true),
       KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter ',
         (){ _resetCounter();},
         isMetaPressed: true),
+      KeyStrokeRep(LogicalKeyboardKey.enter,'reset the counter ',
+        (){ _resetCounter();},
+        isShiftPressed: true),
       KeyStrokeRep(LogicalKeyboardKey.keyM, 'multiply by 10',
           () {
             setState(() {

@@ -24,7 +24,27 @@ class KeyStrokeRep {
   bool get isMetaPressed => keyActivator.meta;
   bool get isShiftPressed => keyActivator.shift;
   bool get isAltPressed => keyActivator.alt;
-  String get label => keyActivator.trigger.keyLabel;
+
+  String get label {
+    LogicalKeyboardKey key = keyActivator.trigger;
+    String label = keyActivator.trigger.keyLabel;
+    if (key == LogicalKeyboardKey.arrowRight) {
+      label = '\u2B95';
+    }
+    else if (key == LogicalKeyboardKey.arrowLeft) {
+      label = '\u2B05';
+    }
+    else if (key == LogicalKeyboardKey.arrowUp) {
+      label = '\u2B06';
+    }
+    else if (key == LogicalKeyboardKey.arrowDown) {
+      label = '\u2B07';
+    }
+    else if (key == LogicalKeyboardKey.enter) {
+      label = '\u21B5';
+    }
+    return label;
+  }
 
   bool matchesEvent(RawKeyEvent event) {
     return event.logicalKey == keyActivator.trigger && isControlPressed == event.isControlPressed &&
@@ -206,7 +226,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
       for (int t = 0; t < widget.columnCount; t++) {
         KeyStrokeRep rep = widget.keyMap[k*widget.columnCount+t];
         String modifiers = _getModifiers(rep);
-        dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers, Theme.of(context).primaryColor.withOpacity(.15))) : DataCell.empty);
+        dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers, Theme.of(context).primaryColor.withOpacity(.25))) : DataCell.empty);
         dataRow.add(DataCell(_getBubble(rep.label, Colors.white)));
         dataRow.add(DataCell(Container(
           margin: const EdgeInsets.only(right: 32),
