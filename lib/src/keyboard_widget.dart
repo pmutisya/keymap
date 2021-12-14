@@ -200,7 +200,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     }
     int fullRows = widget.keyMap.length~/widget.columnCount;
     print('$fullRows FULL ROWS');
-    for (int k = 0; k < fullRows; k+= widget.columnCount) {
+    for (int k = 0; k < fullRows; k++) {
       List<DataCell> dataRow = tableRows[k];
       for (int t = 0; t < widget.columnCount; t++) {
         KeyStrokeRep rep = widget.keyMap[k*widget.columnCount+t];
@@ -210,21 +210,28 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         dataRow.add(DataCell(Text(rep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,)));
       }
     }
-    List<DataCell> dataRow = tableRows[fullRows];
-    for (int k = fullRows*widget.columnCount; k < widget.keyMap.length; k++){
-      KeyStrokeRep rep = widget.keyMap[k];
-      String modifiers = _getModifiers(rep);
-      dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers)) : DataCell.empty);
-      dataRow.add(DataCell(_getBubble(rep.label)));
-      dataRow.add(DataCell(Text(rep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,)));
+    if (widget.keyMap.length%widget.columnCount != 0) {
+      List<DataCell> dataRow = tableRows[fullRows];
+      for (int k = fullRows * widget.columnCount; k <
+          widget.keyMap.length; k++) {
+        KeyStrokeRep rep = widget.keyMap[k];
+        String modifiers = _getModifiers(rep);
+        dataRow.add(
+            modifiers.isNotEmpty ? DataCell(_getBubble(modifiers)) : DataCell
+                .empty);
+        dataRow.add(DataCell(_getBubble(rep.label)));
+        dataRow.add(DataCell(Text(
+          rep.description, overflow: TextOverflow.ellipsis,
+          style: _whiteStyle,)));
+      }
+      for (int k = widget.keyMap.length; k <
+          rowCount * widget.columnCount; k++) {
+        dataRow.add(DataCell.empty);
+        dataRow.add(DataCell.empty);
+        dataRow.add(DataCell.empty);
+      }
     }
-    for (int k = widget.keyMap.length; k < rowCount*widget.columnCount; k++) {
-      dataRow.add(DataCell.empty);
-      dataRow.add(DataCell.empty);
-      dataRow.add(DataCell.empty);
-    }
-
-    print('COLS: ${columns.length}');
+    print('\n\nCOLS: ${columns.length}');
     print('ROWS: ${rowCount}');
     print('ROWLEN:: ${tableRows.length}');
     for (int k = 0; k < rowCount; k++) {

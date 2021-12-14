@@ -69,17 +69,17 @@ class _MyHomePageState extends State<MyHomePage> {
       KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter ',
         (){ _resetCounter();},
         isMetaPressed: true),
-      // KeyStrokeRep(LogicalKeyboardKey.keyM, 'multiply by 10',
-      //     () {
-      //       setState(() {
-      //         _counter = _counter*10;
-      //       });
-      //     }
-      // )
+      KeyStrokeRep(LogicalKeyboardKey.keyM, 'multiply by 10',
+          () {
+            setState(() {
+              _counter = _counter*10;
+            });
+          }
+      )
     ];
 
     return KeyboardWidget(
-      keyMap: shortcuts, columnCount: 3,
+      keyMap: shortcuts, columnCount: 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
