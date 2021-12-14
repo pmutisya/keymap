@@ -99,21 +99,22 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     super.dispose();
   }
   //returns a white rounded-rect surrounded with black text
-  Widget _getBubble(String text) {
+  Widget _getBubble(String text, Color background) {
+    bool isDark = background.computeLuminance() < .5;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       decoration: BoxDecoration(
-        color: Colors.white, borderRadius: BorderRadius.circular(8),
+        color: background, borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(text, style: _blackStyle,),
+      child: Text(text, style: isDark? _whiteStyle :_blackStyle,),
     );
   }
 
   Widget _getShortcutWidget(String text, String description, {String? modifiers}) {
-    List<Widget> widgets = [_getBubble(text), const SizedBox(width: 4),
+    List<Widget> widgets = [_getBubble(text, Colors.white), const SizedBox(width: 4),
       Flexible(child: Text(description, style: _whiteStyle, overflow: TextOverflow.ellipsis,))];
     if (modifiers != null && modifiers.isNotEmpty) {
-      widgets.insert(0, _getBubble(modifiers));
+      widgets.insert(0, _getBubble(modifiers, Colors.white));
       widgets.insert(1, const SizedBox(width: 4,));
     }
     return Container(
@@ -194,9 +195,9 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     print('ROWLEN a:: ${tableRows.length}');
     List<DataColumn> columns = [];
     for (int k = 0; k < widget.columnCount; k++) {
-      columns.add(const DataColumn(label: Text('mod')));
+      columns.add(const DataColumn(label: Text('m'), numeric: true));
       columns.add(const DataColumn(label: Text('k')));
-      columns.add(const DataColumn(label: Text('desc')));
+      columns.add(const DataColumn(label: Text('d')));
     }
     int fullRows = widget.keyMap.length~/widget.columnCount;
     print('$fullRows FULL ROWS');
@@ -205,9 +206,11 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
       for (int t = 0; t < widget.columnCount; t++) {
         KeyStrokeRep rep = widget.keyMap[k*widget.columnCount+t];
         String modifiers = _getModifiers(rep);
-        dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers)) : DataCell.empty);
-        dataRow.add(DataCell(_getBubble(rep.label)));
-        dataRow.add(DataCell(Text(rep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,)));
+        dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers, Theme.of(context).primaryColor.withOpacity(.15))) : DataCell.empty);
+        dataRow.add(DataCell(_getBubble(rep.label, Colors.white)));
+        dataRow.add(DataCell(Container(
+          margin: const EdgeInsets.only(right: 32),
+          child: Text(rep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,))));
       }
     }
     if (widget.keyMap.length%widget.columnCount != 0) {
@@ -217,9 +220,9 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         KeyStrokeRep rep = widget.keyMap[k];
         String modifiers = _getModifiers(rep);
         dataRow.add(
-            modifiers.isNotEmpty ? DataCell(_getBubble(modifiers)) : DataCell
+            modifiers.isNotEmpty ? DataCell(_getBubble(modifiers, Colors.white)) : DataCell
                 .empty);
-        dataRow.add(DataCell(_getBubble(rep.label)));
+        dataRow.add(DataCell(_getBubble(rep.label, Colors.white)));
         dataRow.add(DataCell(Text(
           rep.description, overflow: TextOverflow.ellipsis,
           style: _whiteStyle,)));
@@ -253,17 +256,15 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     for (List<DataCell> cells in tableRows) {
       rows.add(DataRow(cells: cells));
     }
-    print('COLUMNS:: ${columns.length}');
-    for (DataRow row in rows) {
-      print('\tROW: ${row.cells.length}');
-    }
+
     Widget grid = Theme(
       data: Theme.of(context).copyWith(
-        dividerColor: Colors.red, //const Color(0x11777777),
+        dividerColor: Colors.transparent, //const Color(0x11777777),
       ),
       child: DataTable(
-        headingRowColor: MaterialStateColor.resolveWith((states) => Colors.white),
-        border: TableBorder.all(color: Colors.yellow),
+        columnSpacing: 4,
+        // headingRowColor: MaterialStateColor.resolveWith((states) => Colors.white),
+        // border: TableBorder.all(color: Colors.yellow),
         decoration: BoxDecoration(color: const Color(0xFF0a0a0a),
             border: Border.all(color: const Color(0xFF0a0a0a), width: 18),
             borderRadius: BorderRadius.circular(18),
@@ -273,7 +274,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         ),
         dividerThickness: 1,
         columns: columns,
-        rows: rows, dataRowHeight: 32, headingRowHeight: 32,
+        rows: rows, dataRowHeight: 32, headingRowHeight: 0,
       )
     );
 
