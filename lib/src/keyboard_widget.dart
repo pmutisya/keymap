@@ -170,43 +170,93 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   }
 
   static const double horizontalMargin = 16.0;
-  static const double rowHeight = 40.0;
+  // static const double rowHeight = 40.0;
 
   OverlayEntry _buildOverlay() {
-    List<Widget> shortcuts = [];
-    for (KeyStrokeRep keyEvent in widget.keyMap) {
-      String description = keyEvent.description;
-      String modifier = _getModifiers(keyEvent);
-      shortcuts.add(_getShortcutWidget(keyEvent.label, description, modifiers: modifier));
-    }
+    // List<Widget> shortcuts = [];
+    // for (KeyStrokeRep keyEvent in widget.keyMap) {
+    //   String description = keyEvent.description;
+    //   String modifier = _getModifiers(keyEvent);
+    //   shortcuts.add(_getShortcutWidget(keyEvent.label, description, modifiers: modifier));
+    // }
 
     MediaQueryData media = MediaQuery.of(context);
     Size size = media.size;
+    int length = widget.keyMap.length;
 
-    EdgeInsets padding = media.padding;
-    // int cols = sqrt(shortcuts.length).toInt();
-    int rows = shortcuts.length~/widget.columnCount+1;
+    int rowCount = (length/widget.columnCount).ceil();
+    print('${widget.keyMap.length} items in ${widget.columnCount} columnrs => ROWCOUNT: $rowCount');
+    List<List<DataCell>> tableRows = [];
+    for (int k = 0; k < rowCount; k++) {
+      print('\t$k');
+      tableRows.add(<DataCell>[]);
+    }
+    print('ROWLEN a:: ${tableRows.length}');
+    List<DataColumn> columns = [];
+    for (int k = 0; k < widget.columnCount; k++) {
+      columns.add(const DataColumn(label: Text('mod')));
+      columns.add(const DataColumn(label: Text('k')));
+      columns.add(const DataColumn(label: Text('desc')));
+    }
+    int fullRows = widget.keyMap.length~/widget.columnCount;
+    print('$fullRows FULL ROWS');
+    for (int k = 0; k < fullRows; k+= widget.columnCount) {
+      List<DataCell> dataRow = tableRows[k];
+      for (int t = 0; t < widget.columnCount; t++) {
+        KeyStrokeRep rep = widget.keyMap[k*widget.columnCount+t];
+        String modifiers = _getModifiers(rep);
+        dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers)) : DataCell.empty);
+        dataRow.add(DataCell(_getBubble(rep.label)));
+        dataRow.add(DataCell(Text(rep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,)));
+      }
+    }
+    List<DataCell> dataRow = tableRows[fullRows];
+    for (int k = fullRows*widget.columnCount; k < widget.keyMap.length; k++){
+      KeyStrokeRep rep = widget.keyMap[k];
+      String modifiers = _getModifiers(rep);
+      dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers)) : DataCell.empty);
+      dataRow.add(DataCell(_getBubble(rep.label)));
+      dataRow.add(DataCell(Text(rep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,)));
+    }
+    for (int k = widget.keyMap.length; k < rowCount*widget.columnCount; k++) {
+      dataRow.add(DataCell.empty);
+      dataRow.add(DataCell.empty);
+      dataRow.add(DataCell.empty);
+    }
 
-    //the width used to display the actual help rectangle
-    // double boxWidth = size.width - padding.horizontal - horizontalMargin*2;
-    // print('COLS: $cols ROWS: $rows  TOTAL: ${shortcuts.length}');
-    List<DataRow> tableRows = [];
-    for (KeyStrokeRep keyStrokeRep in widget.keyMap) {
-      String modifiers = _getModifiers(keyStrokeRep);
+    print('COLS: ${columns.length}');
+    print('ROWS: ${rowCount}');
+    print('ROWLEN:: ${tableRows.length}');
+    for (int k = 0; k < rowCount; k++) {
+      print('ROW $k::${tableRows[k].length}');
+    }
 
-      DataCell modifierCell = modifiers.isNotEmpty? DataCell(_getBubble(modifiers)) : DataCell.empty;
-      DataRow row = DataRow(cells: [
-        modifierCell,
-        DataCell(_getBubble(keyStrokeRep.label)),
-        DataCell(Text(keyStrokeRep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,))
-      ]);
-      tableRows.add(row);
+    // for (KeyStrokeRep keyStrokeRep in widget.keyMap) {
+    //   String modifiers = _getModifiers(keyStrokeRep);
+    //
+    //   DataCell modifierCell = modifiers.isNotEmpty? DataCell(_getBubble(modifiers)) : DataCell.empty;
+    //   DataRow row = DataRow(cells: [
+    //     modifierCell,
+    //     DataCell(_getBubble(keyStrokeRep.label)),
+    //     DataCell(Text(keyStrokeRep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,))
+    //   ]);
+    //   tableRows.add(row);
+    // }
+    List<DataRow> rows = [];
+    for (List<DataCell> cells in tableRows) {
+      rows.add(DataRow(cells: cells));
+    }
+    print('COLUMNS:: ${columns.length}');
+    for (DataRow row in rows) {
+      print('\tROW: ${row.cells.length}');
     }
     Widget grid = Theme(
       data: Theme.of(context).copyWith(
-        dividerColor: Colors.transparent, //const Color(0x11777777),
+        dividerColor: Colors.red, //const Color(0x11777777),
       ),
       child: DataTable(
+        headingRowColor: MaterialStateColor.resolveWith((states) => Colors.white),
+        border: TableBorder.all(color: Colors.yellow),
         decoration: BoxDecoration(color: const Color(0xFF0a0a0a),
             border: Border.all(color: const Color(0xFF0a0a0a), width: 18),
             borderRadius: BorderRadius.circular(18),
@@ -215,16 +265,16 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
           ]
         ),
         dividerThickness: 1,
-        columns: [DataColumn(label: Container()), DataColumn(label: Container()), DataColumn(label: Container())],
-        rows: tableRows, dataRowHeight: 32, headingRowHeight: 2,
+        columns: columns,
+        rows: rows, dataRowHeight: 32, headingRowHeight: 32,
       )
     );
 
-    Widget grid2 = GridView.count(
-      scrollDirection: Axis.vertical,
-      crossAxisCount: widget.columnCount, children: shortcuts,
-      childAspectRatio: (size.width - horizontalMargin*2)/widget.columnCount/rowHeight,
-      shrinkWrap: true,);
+    // Widget grid2 = GridView.count(
+    //   scrollDirection: Axis.vertical,
+    //   crossAxisCount: widget.columnCount, children: shortcuts,
+    //   childAspectRatio: (size.width - horizontalMargin*2)/widget.columnCount/rowHeight,
+    //   shrinkWrap: true,);
     return OverlayEntry(
         builder: (context) {
           // EdgeInsets padding = MediaQuery.of(context).padding;
