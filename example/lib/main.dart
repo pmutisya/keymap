@@ -75,6 +75,13 @@ class _MyHomePageState extends State<MyHomePage> {
       KeyStrokeRep(LogicalKeyboardKey.enter,'reset the counter ',
         (){ _resetCounter();},
         isShiftPressed: true),
+      KeyStrokeRep(LogicalKeyboardKey.delete,'round down ',
+        (){
+          setState(() {
+            _counter = _counter~/10;
+          });
+        },
+        isShiftPressed: true),
       KeyStrokeRep(LogicalKeyboardKey.keyM, 'multiply by 10',
           () {
             setState(() {

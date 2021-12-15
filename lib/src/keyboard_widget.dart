@@ -40,8 +40,11 @@ class KeyStrokeRep {
     else if (key == LogicalKeyboardKey.arrowDown) {
       label = '\u2B07';
     }
+    else if (key == LogicalKeyboardKey.delete) {
+      label = '\u232B';
+    }
     else if (key == LogicalKeyboardKey.enter) {
-      label = '\u21B5';
+      label = '\u2B90';
     }
     return label;
   }
