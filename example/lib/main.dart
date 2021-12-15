@@ -59,30 +59,30 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<KeyStrokeRep> shortcuts = [
-      KeyStrokeRep(LogicalKeyboardKey.keyI,'increment the counter', () => _incrementCounter(),),
-      KeyStrokeRep(LogicalKeyboardKey.keyD, 'decrement the counter', () => _decrementCounter(),
+    List<KeyAction> shortcuts = [
+      KeyAction(LogicalKeyboardKey.keyI,'increment the counter', () => _incrementCounter(),),
+      KeyAction(LogicalKeyboardKey.keyD, 'decrement the counter', () => _decrementCounter(),
         isShiftPressed: true, isAltPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.enter,'increase by 10',
+      KeyAction(LogicalKeyboardKey.enter,'increase by 10',
         (){ increaseBy(10); },
         isControlPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.arrowRight,'increase by 5',
+      KeyAction(LogicalKeyboardKey.arrowRight,'increase by 5',
         (){ increaseBy(5); },
         isControlPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter ',
+      KeyAction(LogicalKeyboardKey.keyR,'reset the counter ',
         (){ _resetCounter();},
         isMetaPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.enter,'reset the counter ',
+      KeyAction(LogicalKeyboardKey.enter,'reset the counter ',
         (){ _resetCounter();},
         isShiftPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.delete,'round down ',
+      KeyAction(LogicalKeyboardKey.delete,'round down ',
         (){
           setState(() {
             _counter = _counter~/10;
           });
         },
         isShiftPressed: true),
-      KeyStrokeRep(LogicalKeyboardKey.keyM, 'multiply by 10',
+      KeyAction(LogicalKeyboardKey.keyM, 'multiply by 10',
           () {
             setState(() {
               _counter = _counter*10;

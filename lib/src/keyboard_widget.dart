@@ -3,11 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-///A combination of a (e.g., control-shift-A), a description
+///A combination of a [LogicalKeyboardKey] (e.g., control-shift-A), a description
 ///of what action that keystroke should trigger (e.g., "select all text"),
-///and a callback method to be invoked.
+///and a callback method to be invoked when that keystroke is pressed.
 @immutable
-class KeyStrokeRep {
+class KeyAction {
   final SingleActivator keyActivator;
   final String description;
   final VoidCallback callback;
@@ -16,7 +16,7 @@ class KeyStrokeRep {
   ///[description] and [callback] method. Includes optional bool values (defaulting
   ///to false) for key modifiers for meta [isMetaPressed], shift [isShiftPressed],
   ///alt [isAltPressed]
-  KeyStrokeRep(LogicalKeyboardKey keyStroke, this.description, this.callback,
+  KeyAction(LogicalKeyboardKey keyStroke, this.description, this.callback,
       {bool isControlPressed = false, bool isMetaPressed = false, bool isShiftPressed = false, bool isAltPressed = false}):
       keyActivator = SingleActivator(keyStroke, control: isControlPressed, shift: isShiftPressed, alt: isAltPressed, meta: isMetaPressed);
 
@@ -61,7 +61,7 @@ class KeyStrokeRep {
 class KeyboardWidget extends StatefulWidget {
   final bool hasFocus;
   final Widget child;
-  final List<KeyStrokeRep> keyMap;
+  final List<KeyAction> keyMap;
   final LogicalKeyboardKey showDismissKey;
   final int columnCount;
   final bool showMap;
@@ -133,26 +133,8 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     );
   }
 
-  Widget _getShortcutWidget(String text, String description, {String? modifiers}) {
-    List<Widget> widgets = [_getBubble(text, Colors.white), const SizedBox(width: 4),
-      Flexible(child: Text(description, style: _whiteStyle, overflow: TextOverflow.ellipsis,))];
-    if (modifiers != null && modifiers.isNotEmpty) {
-      widgets.insert(0, _getBubble(modifiers, Colors.white));
-      widgets.insert(1, const SizedBox(width: 4,));
-    }
-    return Container(
-        height: 20,
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(border: Border.all(color: Colors.red)),
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min, children: widgets,
-        )
-    );
-  }
-
   //returns the modifier key as text or a symbol (where possible)
-  String _getModifiers(KeyStrokeRep rep) {
+  String _getModifiers(KeyAction rep) {
     StringBuffer buffer = StringBuffer();
     if(rep.isMetaPressed) {
       if (Platform.isMacOS) {
@@ -184,8 +166,8 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     return buffer.toString();
   }
 
-  KeyStrokeRep? _findMatch(RawKeyEvent event) {
-    for (KeyStrokeRep rep in widget.keyMap) {
+  KeyAction? _findMatch(RawKeyEvent event) {
+    for (KeyAction rep in widget.keyMap) {
       if (rep.matchesEvent(event)) {
         return rep;
       }
@@ -194,28 +176,18 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   }
 
   static const double horizontalMargin = 16.0;
-  // static const double rowHeight = 40.0;
 
   OverlayEntry _buildOverlay() {
-    // List<Widget> shortcuts = [];
-    // for (KeyStrokeRep keyEvent in widget.keyMap) {
-    //   String description = keyEvent.description;
-    //   String modifier = _getModifiers(keyEvent);
-    //   shortcuts.add(_getShortcutWidget(keyEvent.label, description, modifiers: modifier));
-    // }
 
     MediaQueryData media = MediaQuery.of(context);
     Size size = media.size;
     int length = widget.keyMap.length;
 
     int rowCount = (length/widget.columnCount).ceil();
-    print('${widget.keyMap.length} items in ${widget.columnCount} columnrs => ROWCOUNT: $rowCount');
     List<List<DataCell>> tableRows = [];
     for (int k = 0; k < rowCount; k++) {
-      print('\t$k');
       tableRows.add(<DataCell>[]);
     }
-    print('ROWLEN a:: ${tableRows.length}');
     List<DataColumn> columns = [];
     for (int k = 0; k < widget.columnCount; k++) {
       columns.add(const DataColumn(label: Text('m'), numeric: true));
@@ -223,11 +195,10 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
       columns.add(const DataColumn(label: Text('d')));
     }
     int fullRows = widget.keyMap.length~/widget.columnCount;
-    print('$fullRows FULL ROWS');
     for (int k = 0; k < fullRows; k++) {
       List<DataCell> dataRow = tableRows[k];
       for (int t = 0; t < widget.columnCount; t++) {
-        KeyStrokeRep rep = widget.keyMap[k*widget.columnCount+t];
+        KeyAction rep = widget.keyMap[k*widget.columnCount+t];
         String modifiers = _getModifiers(rep);
         dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers, Theme.of(context).primaryColor.withOpacity(.25))) : DataCell.empty);
         dataRow.add(DataCell(_getBubble(rep.label, Colors.white)));
@@ -240,7 +211,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
       List<DataCell> dataRow = tableRows[fullRows];
       for (int k = fullRows * widget.columnCount; k <
           widget.keyMap.length; k++) {
-        KeyStrokeRep rep = widget.keyMap[k];
+        KeyAction rep = widget.keyMap[k];
         String modifiers = _getModifiers(rep);
         dataRow.add(
             modifiers.isNotEmpty ? DataCell(_getBubble(modifiers, Colors.white)) : DataCell
@@ -257,24 +228,6 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         dataRow.add(DataCell.empty);
       }
     }
-    print('\n\nCOLS: ${columns.length}');
-    print('ROWS: ${rowCount}');
-    print('ROWLEN:: ${tableRows.length}');
-    for (int k = 0; k < rowCount; k++) {
-      print('ROW $k::${tableRows[k].length}');
-    }
-
-    // for (KeyStrokeRep keyStrokeRep in widget.keyMap) {
-    //   String modifiers = _getModifiers(keyStrokeRep);
-    //
-    //   DataCell modifierCell = modifiers.isNotEmpty? DataCell(_getBubble(modifiers)) : DataCell.empty;
-    //   DataRow row = DataRow(cells: [
-    //     modifierCell,
-    //     DataCell(_getBubble(keyStrokeRep.label)),
-    //     DataCell(Text(keyStrokeRep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,))
-    //   ]);
-    //   tableRows.add(row);
-    // }
     List<DataRow> rows = [];
     for (List<DataCell> cells in tableRows) {
       rows.add(DataRow(cells: cells));
@@ -286,8 +239,6 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
       ),
       child: DataTable(
         columnSpacing: 4,
-        // headingRowColor: MaterialStateColor.resolveWith((states) => Colors.white),
-        // border: TableBorder.all(color: Colors.yellow),
         decoration: BoxDecoration(color: const Color(0xFF0a0a0a),
             border: Border.all(color: const Color(0xFF0a0a0a), width: 18),
             borderRadius: BorderRadius.circular(18),
@@ -301,14 +252,8 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
       )
     );
 
-    // Widget grid2 = GridView.count(
-    //   scrollDirection: Axis.vertical,
-    //   crossAxisCount: widget.columnCount, children: shortcuts,
-    //   childAspectRatio: (size.width - horizontalMargin*2)/widget.columnCount/rowHeight,
-    //   shrinkWrap: true,);
     return OverlayEntry(
         builder: (context) {
-          // EdgeInsets padding = MediaQuery.of(context).padding;
           return Positioned(
               child: GestureDetector(
                 onTap: () {
@@ -387,7 +332,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
             _hideOverlay();
           }
           else {
-            KeyStrokeRep? rep = _findMatch(event);
+            KeyAction? rep = _findMatch(event);
             if (rep != null) {
               rep.callback();
             }
