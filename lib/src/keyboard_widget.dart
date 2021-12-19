@@ -137,7 +137,8 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   String _getModifiers(KeyAction rep) {
     StringBuffer buffer = StringBuffer();
     if(rep.isMetaPressed) {
-      if (Platform.isMacOS) {
+      //Platform operating system is not available in the web platform
+      if (!kIsWeb && Platform.isMacOS) {
         buffer.write('⌘');
       }
       else {
@@ -148,7 +149,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
       buffer.write('⇧');
     }
     if (rep.isControlPressed) {
-      if (Platform.isMacOS) {
+      if (!kIsWeb && Platform.isMacOS) {
         buffer.write('⌃');
       }
       else {
@@ -156,7 +157,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
       }
     }
     if (rep.isAltPressed) {
-      if (Platform.isMacOS) {
+      if (!kIsWeb && Platform.isMacOS) {
         buffer.write('⌥');
       }
       else {
@@ -295,12 +296,8 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   Widget build(BuildContext context) {
     if (kIsWeb || Platform.isFuchsia || Platform.isLinux || Platform.isMacOS ||
         Platform.isWindows) {
-      // return LayoutBuilder(
-      //     builder:(context, constraints) {
-            FocusScope.of(context).requestFocus(_focusNode);
-            return _getKeyboardListener(context);
-          // }
-      // );
+          FocusScope.of(context).requestFocus(_focusNode);
+          return _getKeyboardListener(context);
     }
     else {
       return widget.child;
@@ -308,11 +305,11 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
 
   }
   Widget _getKeyboardListener(BuildContext context) {
-    return RawKeyboardListener(
+    return Focus(
       child: widget.child,
       focusNode: _focusNode,
       autofocus: widget.hasFocus,
-      onKey: (RawKeyEvent event) {
+      onKey: (FocusNode node, RawKeyEvent event) {
         if (event.runtimeType == RawKeyUpEvent) {
           LogicalKeyboardKey key = event.logicalKey;
 
@@ -327,17 +324,26 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 _hideOverlay();
               }
             });
+            return KeyEventResult.handled;
           }
           else if (key == LogicalKeyboardKey.escape) {
-            _hideOverlay();
+            if (showingOverlay) {
+              _hideOverlay();
+            }
+            return KeyEventResult.handled;
           }
           else {
             KeyAction? rep = _findMatch(event);
             if (rep != null) {
               rep.callback();
+              return KeyEventResult.handled;
+            }
+            else {
+              return KeyEventResult.ignored;
             }
           }
         }
+        return KeyEventResult.ignored;
       },);
   }
   void _hideOverlay() {
