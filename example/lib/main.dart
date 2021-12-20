@@ -65,29 +65,38 @@ class _MyHomePageState extends State<MyHomePage> {
         isShiftPressed: true, isAltPressed: true),
       KeyAction(LogicalKeyboardKey.enter,'increase by 10',
         (){ increaseBy(10); },
-        isControlPressed: true),
+        isControlPressed: true
+      ),
       KeyAction(LogicalKeyboardKey.arrowRight,'increase by 5',
         (){ increaseBy(5); },
-        isControlPressed: true),
+        isControlPressed: true
+      ),
+      KeyAction(LogicalKeyboardKey.arrowLeft,'decrease by 5',
+        (){ increaseBy(-5); },
+        isControlPressed: true
+      ),
       KeyAction(LogicalKeyboardKey.keyR,'reset the counter ',
         (){ _resetCounter();},
-        isMetaPressed: true),
+        isMetaPressed: true
+      ),
       KeyAction(LogicalKeyboardKey.enter,'reset the counter ',
         (){ _resetCounter();},
-        isShiftPressed: true),
+        isShiftPressed: true
+      ),
       KeyAction(LogicalKeyboardKey.delete,'round down ',
         (){
           setState(() {
             _counter = _counter~/10;
           });
         },
-        isShiftPressed: true),
+        isShiftPressed: true
+      ),
       KeyAction(LogicalKeyboardKey.keyM, 'multiply by 10',
-          () {
-            setState(() {
-              _counter = _counter*10;
-            });
-          }
+        () {
+          setState(() {
+            _counter = _counter*10;
+          });
+        }
       )
     ];
 

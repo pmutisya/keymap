@@ -29,22 +29,52 @@ class KeyAction {
     LogicalKeyboardKey key = keyActivator.trigger;
     String label = keyActivator.trigger.keyLabel;
     if (key == LogicalKeyboardKey.arrowRight) {
-      label = '\u2B95';
+      if (kIsWeb) {
+        label = 'arrow right';
+      }
+      else {
+        label = '\u2192';
+      }
     }
     else if (key == LogicalKeyboardKey.arrowLeft) {
-      label = '\u2B05';
+      if (kIsWeb) {
+        label = 'arrow left';
+      }
+      else {
+        label = '\u2190';
+      }
     }
     else if (key == LogicalKeyboardKey.arrowUp) {
-      label = '\u2B06';
+      if (kIsWeb) {
+        label = 'arrow up';
+      }
+      else {
+        label = '\u2191';
+      }
     }
     else if (key == LogicalKeyboardKey.arrowDown) {
-      label = '\u2B07';
+      if (kIsWeb) {
+        label = 'arrow down';
+      }
+      else {
+        label = '\u2193';
+      }
     }
     else if (key == LogicalKeyboardKey.delete) {
-      label = '\u232B';
+      if (kIsWeb) {
+        label = 'delete';
+      }
+      else {
+        label = '\u232B';
+      }
     }
     else if (key == LogicalKeyboardKey.enter) {
-      label = '\u2B90';
+      if (kIsWeb) {
+        label = 'enter';
+      }
+      else {
+        label = '\u2B90';
+      }
     }
     return label;
   }
@@ -142,18 +172,23 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         buffer.write('⌘');
       }
       else {
-        buffer.write('meta');
+        buffer.write('meta ');
       }
     }
     if (rep.isShiftPressed) {
-      buffer.write('⇧');
+      if (kIsWeb) {
+        buffer.write('shift ');
+      }
+      else {
+        buffer.write('⇧');
+      }
     }
     if (rep.isControlPressed) {
       if (!kIsWeb && Platform.isMacOS) {
         buffer.write('⌃');
       }
       else {
-        buffer.write('ctrl');
+        buffer.write('ctrl ');
       }
     }
     if (rep.isAltPressed) {
@@ -161,10 +196,15 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         buffer.write('⌥');
       }
       else {
-        buffer.write('alt');
+        buffer.write('alt ');
       }
     }
-    return buffer.toString();
+    if (kIsWeb || !Platform.isMacOS) {
+      return buffer.toString().trimRight();
+    }
+    else {
+      return buffer.toString();
+    }
   }
 
   KeyAction? _findMatch(RawKeyEvent event) {
