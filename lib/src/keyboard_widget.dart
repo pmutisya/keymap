@@ -284,7 +284,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
             border: Border.all(color: const Color(0xFF0a0a0a), width: 18),
             borderRadius: BorderRadius.circular(18),
           boxShadow: const [
-            BoxShadow(color: Color(0xDE2a2a2a), blurRadius: 50, spreadRadius: 5)
+            BoxShadow(color: Color(0xaa000000), blurRadius: 50, spreadRadius: 5)
           ]
         ),
         dividerThickness: 1,
