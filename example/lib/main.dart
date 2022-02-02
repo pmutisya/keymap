@@ -31,8 +31,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late GlobalKey<KeyboardWidgetState> _key;
   int _counter = 0;
+  late List<KeyAction> shortcuts;
 
+  @override
+  void initState() {
+    super.initState();
+    _key = GlobalKey();
+    shortcuts = _getShortcuts();
+  }
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -59,52 +67,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<KeyAction> shortcuts = [
-      KeyAction(LogicalKeyboardKey.keyI,'increment the counter', () => _incrementCounter(),),
-      KeyAction(LogicalKeyboardKey.keyD, 'decrement the counter', () => _decrementCounter(),
-        isShiftPressed: true, isAltPressed: true),
-      KeyAction(LogicalKeyboardKey.enter,'increase by 10',
-        (){ increaseBy(10); },
-        isControlPressed: true
-      ),
-      KeyAction(LogicalKeyboardKey.arrowRight,'increase by 5',
-        (){ increaseBy(5); },
-        isControlPressed: true
-      ),
-      KeyAction(LogicalKeyboardKey.arrowLeft,'decrease by 5',
-        (){ increaseBy(-5); },
-        isControlPressed: true
-      ),
-      KeyAction(LogicalKeyboardKey.keyR,'reset the counter ',
-        (){ _resetCounter();},
-        isMetaPressed: true
-      ),
-      KeyAction(LogicalKeyboardKey.enter,'reset the counter ',
-        (){ _resetCounter();},
-        isShiftPressed: true
-      ),
-      KeyAction(LogicalKeyboardKey.delete,'round down ',
-        (){
-          setState(() {
-            _counter = _counter~/10;
-          });
-        },
-        isShiftPressed: true
-      ),
-      KeyAction(LogicalKeyboardKey.keyM, 'multiply by 10',
-        () {
-          setState(() {
-            _counter = _counter*10;
-          });
-        }
-      )
-    ];
-
     return KeyboardWidget(
+      key: _key,
       keyMap: shortcuts, columnCount: 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
+          actions: [
+            Tooltip(message: 'Show keyboard shortcuts',
+             child: IconButton(icon: const Icon(Icons.help_outline), onPressed: () {
+              _key.currentState?.toggleOverlay();
+            },)),
+          ],
         ),
         body: Center(
           child: Column(
@@ -127,5 +101,48 @@ class _MyHomePageState extends State<MyHomePage> {
         ), // This trailing comma makes auto-formatting nicer for build methods.
       )
     );
+  }
+
+  List<KeyAction> _getShortcuts() {
+    return [
+      KeyAction(LogicalKeyboardKey.keyI,'increment the counter', _incrementCounter,),
+      KeyAction(LogicalKeyboardKey.keyD, 'decrement the counter', _decrementCounter,
+          isAltPressed: true, isControlPressed: true),
+      KeyAction(LogicalKeyboardKey.enter,'increase by 10',
+              (){ increaseBy(10); },
+          isControlPressed: true
+      ),
+      KeyAction(LogicalKeyboardKey.arrowUp,'increase by 5',
+              (){ increaseBy(5); },
+          isAltPressed: true
+      ),
+      KeyAction(LogicalKeyboardKey.arrowDown,'decrease by 5',
+              (){ increaseBy(-5); },
+          isAltPressed: true
+      ),
+      KeyAction(LogicalKeyboardKey.keyR,'reset the counter ',
+              (){ _resetCounter();},
+          isMetaPressed: true
+      ),
+      KeyAction(LogicalKeyboardKey.enter,'reset the counter ',
+              (){ _resetCounter();},
+          isShiftPressed: true
+      ),
+      KeyAction(LogicalKeyboardKey.delete,'round down ',
+              (){
+            setState(() {
+              _counter = _counter~/10;
+            });
+          },
+          isShiftPressed: true
+      ),
+      KeyAction(LogicalKeyboardKey.keyM, 'multiply by 10',
+              () {
+            setState(() {
+              _counter = _counter*10;
+            });
+          }
+      )
+    ];
   }
 }

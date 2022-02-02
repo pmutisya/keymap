@@ -95,6 +95,7 @@ class KeyboardWidget extends StatefulWidget {
   final LogicalKeyboardKey showDismissKey;
   final int columnCount;
   final bool showMap;
+  final VoidCallback? callbackOnHide;
 
   /// Creates a new KeyboardWidget with a list of Keystrokes and associated
   /// functions [keyMap], a required [child] widget and an optional
@@ -109,33 +110,39 @@ class KeyboardWidget extends StatefulWidget {
   ///
   /// If the help map should be displayed, set the parameter [showMap] to true.
   /// This lets the implementer programmatically show the map.
+  /// You would usually pair this with a function [callbackOnHide] so that the caller
+  /// to show the help screen can be notified when it is hidden
   ///
   const KeyboardWidget({Key? key, required this.keyMap, this.hasFocus = false,
     required this.child, this.showDismissKey=LogicalKeyboardKey.f1, this.columnCount = 1,
-    this.showMap = false,
+    this.showMap = false, this.callbackOnHide,
   }) :
     assert (columnCount > 0),
     super(key: key)
   ;
 
   @override
-  _KeyboardWidgetState createState() => _KeyboardWidgetState();
+  KeyboardWidgetState createState() => KeyboardWidgetState();
 
 }
 
-class _KeyboardWidgetState extends State<KeyboardWidget> {
+class KeyboardWidgetState extends State<KeyboardWidget> {
   late FocusNode _focusNode;
   late OverlayEntry _overlayEntry;
   late bool showingOverlay;
 
-  static const TextStyle _whiteStyle = TextStyle(color: Colors.white, fontSize: 12);
-  // static const TextStyle _boldStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
-  static const TextStyle _blackStyle = TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.normal);
+
+  static const Color background = Color(0xFF0a0a0a);
+  static const Color shadow = Color(0xaa000000);
+  static const Color text = Colors.white;
+
+  static const TextStyle _textStyle = TextStyle(color: text, fontSize: 12);
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
+    _focusNode.requestFocus();
     showingOverlay = widget.showMap;
   }
 
@@ -151,15 +158,17 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     _focusNode.dispose();
     super.dispose();
   }
-  //returns a white rounded-rect surrounded with black text
-  Widget _getBubble(String text, Color background) {
-    bool isDark = background.computeLuminance() < .5;
+  //returns text surrounded with a rounded-rect
+  Widget _getBubble(String text, Color color, Color color2, {bool invert = false}) {
+    // bool isDark = background.computeLuminance() < .5;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
       decoration: BoxDecoration(
-        color: background, borderRadius: BorderRadius.circular(8),
+        color: invert? color : color2,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color)
       ),
-      child: Text(text, style: isDark? _whiteStyle :_blackStyle,),
+      child: Text(text, style: _textStyle.copyWith(color: invert? color2 : color)), //isDark? _whiteStyle :_blackStyle,),
     );
   }
 
@@ -241,11 +250,12 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
       for (int t = 0; t < widget.columnCount; t++) {
         KeyAction rep = widget.keyMap[k*widget.columnCount+t];
         String modifiers = _getModifiers(rep);
-        dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers, Theme.of(context).primaryColor.withOpacity(.25))) : DataCell.empty);
-        dataRow.add(DataCell(_getBubble(rep.label, Colors.white)));
+        dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers, text,
+          background, invert: true)) : DataCell.empty);
+        dataRow.add(DataCell(_getBubble(rep.label, text, background)));
         dataRow.add(DataCell(Container(
           margin: const EdgeInsets.only(right: 32),
-          child: Text(rep.description, overflow: TextOverflow.ellipsis, style: _whiteStyle,))));
+          child: Text(rep.description, overflow: TextOverflow.ellipsis, style: _textStyle,))));
       }
     }
     if (widget.keyMap.length%widget.columnCount != 0) {
@@ -255,12 +265,12 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         KeyAction rep = widget.keyMap[k];
         String modifiers = _getModifiers(rep);
         dataRow.add(
-            modifiers.isNotEmpty ? DataCell(_getBubble(modifiers, Colors.white)) : DataCell
+            modifiers.isNotEmpty ? DataCell(_getBubble(modifiers, text, background)) : DataCell
                 .empty);
-        dataRow.add(DataCell(_getBubble(rep.label, Colors.white)));
+        dataRow.add(DataCell(_getBubble(rep.label, text, background)));
         dataRow.add(DataCell(Text(
           rep.description, overflow: TextOverflow.ellipsis,
-          style: _whiteStyle,)));
+          style: _textStyle,)));
       }
       for (int k = widget.keyMap.length; k <
           rowCount * widget.columnCount; k++) {
@@ -279,17 +289,17 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         dividerColor: Colors.transparent, //const Color(0x11777777),
       ),
       child: DataTable(
-        columnSpacing: 4,
-        decoration: BoxDecoration(color: const Color(0xFF0a0a0a),
-            border: Border.all(color: const Color(0xFF0a0a0a), width: 18),
+        columnSpacing: 6,
+        decoration: BoxDecoration(color: background,
+            border: Border.all(color: background, width: 18),
             borderRadius: BorderRadius.circular(18),
           boxShadow: const [
-            BoxShadow(color: Color(0xaa000000), blurRadius: 50, spreadRadius: 5)
+            BoxShadow(color: shadow, blurRadius: 50, spreadRadius: 5)
           ]
         ),
         dividerThickness: 1,
         columns: columns,
-        rows: rows, dataRowHeight: 32, headingRowHeight: 0,
+        rows: rows, dataRowHeight: 44, headingRowHeight: 0,
       )
     );
 
@@ -354,16 +364,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
           LogicalKeyboardKey key = event.logicalKey;
 
           if (key == widget.showDismissKey) {
-            setState(() {
-              if (!showingOverlay) {
-                showingOverlay = true;
-                _overlayEntry = _buildOverlay();
-                Overlay.of(context)!.insert(_overlayEntry);
-              }
-              else {
-                _hideOverlay();
-              }
-            });
+            toggleOverlay();
             return KeyEventResult.handled;
           }
           else if (key == LogicalKeyboardKey.escape) {
@@ -386,10 +387,27 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
         return KeyEventResult.ignored;
       },);
   }
+  void toggleOverlay() {
+    setState(() {
+      if (!showingOverlay) {
+        showingOverlay = true;
+        _overlayEntry = _buildOverlay();
+        Overlay.of(context)!.insert(_overlayEntry);
+      }
+      else {
+        if (showingOverlay) {
+          _hideOverlay();
+        }
+      }
+    });
+  }
   void _hideOverlay() {
     setState(() {
       showingOverlay = false;
       _overlayEntry.remove();
+      // if (widget.callbackOnHide != null) {
+      //   widget.callbackOnHide!();
+      // }
     });
   }
 }
