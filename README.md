@@ -1,51 +1,57 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
 # Keymap
 
-A keymap widget letting a developer easily allow end users to use keyboard
-shortcuts in any app.
+A keymap widget letting a developer easily allow end users to use keyboard shortcuts
+and an associated help screen overlay to any app.
 
 ## Getting started
 [![pub package](https://img.shields.io/pub/v/cupertino_icons.svg)](https://pub.dev/packages/cupertino_icons)
 
 ```
 dependencies:
-  keymap: ^<latest-version>
+  keymap: <latest-version>
 ```
 
 ## Features
 
-- Clear, readable display of keymaps over any application
+- Easily add keyboard shortcuts to any widget tree
+- Clear, readable help screen 
 - Insert at any point in the widget tree
+- Respects application theme colors and fonts
 
 ## Usage
 
+Create a list of shortcuts and methods to be called:
+```dart
+  List<KeyAction> _getShortcuts() {
+    return [
+      KeyAction(LogicalKeyboardKey.keyI,'increment the counter', _incrementCounter,),
+      KeyAction(LogicalKeyboardKey.keyD, 'decrement the counter', _decrementCounter,
+        isAltPressed: true, isControlPressed: true),
+      KeyAction(LogicalKeyboardKey.enter,'increase by 10',
+        (){ increaseBy(10); }, isControlPressed: true
+      ),
+```
+
+Add those shortcuts into your widget tree
 ```dart
   @override
-Widget build(BuildContext context) {
-  List<KeyStrokeRep> shortcuts = [
-    KeyStrokeRep(LogicalKeyboardKey.keyI,'increment the counter', () => _incrementCounter(),),
-    KeyStrokeRep(LogicalKeyboardKey.keyD, 'decrement the counter', () => _decrementCounter()),
-    KeyStrokeRep(LogicalKeyboardKey.enter,'increase by 10', (){
-      increaseBy(10);
-    },isControlPressed: true),
-    KeyStrokeRep(LogicalKeyboardKey.keyR,'reset the counter. And here is some very long text to test overflow', (){
-      _resetCounter();
-    },isMetaPressed: true),
-  ];
+  Widget build(BuildContext context) {
+    //the KeyBoardWidget is at the root of the app so that
+    //all key-presses are registered
+    return KeyboardWidget(
+      key: _key,
+      keyMap: shortcuts, columnCount: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          actions: [
+            Tooltip(message: 'Show keyboard shortcuts',
+             child: IconButton(icon: const Icon(Icons.help_outline), onPressed: () {
+              _key.currentState?.toggleOverlay();
+            },)),
+          ],
+        ),
 
-  return KeyboardWidget(
-      keyMap: shortcuts,
 ```
 ![example app](doc/app_image.png)
 ## Additional information

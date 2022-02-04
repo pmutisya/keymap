@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keymap/keymap.dart';
 
+///This example shows how to use the keymap by
+///inserting a KeyMap and related functions to the standard
+///Flutter counter app. It adds a global key to let the user
+///call up the help screen with a button in the app bar.
 void main() {
   runApp(const MyApp());
 }
@@ -31,8 +35,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  //used by the help icon button in the AppBar
   late GlobalKey<KeyboardWidgetState> _key;
   int _counter = 0;
+  //The shortcuts used by the KeyMap
   late List<KeyAction> shortcuts;
 
   @override
@@ -41,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _key = GlobalKey();
     shortcuts = _getShortcuts();
   }
+
   void _incrementCounter() {
     setState(() {
       _counter++;
@@ -65,44 +72,9 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return KeyboardWidget(
-      key: _key,
-      keyMap: shortcuts, columnCount: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          actions: [
-            Tooltip(message: 'Show keyboard shortcuts',
-             child: IconButton(icon: const Icon(Icons.help_outline), onPressed: () {
-              _key.currentState?.toggleOverlay();
-            },)),
-          ],
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text(
-                'You have pushed the button this many times:',
-              ),
-              Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headline4,
-              ),
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _incrementCounter,
-          tooltip: 'Increment',
-          child: const Icon(Icons.add),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
-      )
-    );
-  }
-
+  //each shortcut is defined by the key pressed, the method called and a
+  //human-readable description. You can optionally add modifiers like control,
+  //alt, etc.
   List<KeyAction> _getShortcuts() {
     return [
       KeyAction(LogicalKeyboardKey.keyI,'increment the counter', _incrementCounter,),
@@ -145,4 +117,45 @@ class _MyHomePageState extends State<MyHomePage> {
       )
     ];
   }
+
+  @override
+  Widget build(BuildContext context) {
+    //the KeyBoardWidget is at the root of the app so that
+    //all key-presses are registered
+    return KeyboardWidget(
+      key: _key,
+      keyMap: shortcuts, columnCount: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          actions: [
+            Tooltip(message: 'Show keyboard shortcuts',
+             child: IconButton(icon: const Icon(Icons.help_outline), onPressed: () {
+              _key.currentState?.toggleOverlay();
+            },)),
+          ],
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text(
+                'You have pushed the button this many times:',
+              ),
+              Text(
+                '$_counter',
+                style: Theme.of(context).textTheme.headline4,
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _incrementCounter,
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ), // This trailing comma makes auto-formatting nicer for build methods.
+      )
+    );
+  }
+
 }
