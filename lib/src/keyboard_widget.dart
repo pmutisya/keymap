@@ -86,23 +86,39 @@ class KeyAction {
   }
 }
 
-/// A keymap widget
-///
+/// A keymap widget allowing easy addition of shortcut keys to any widget tree
+/// with an optional help screen overlay
 class KeyboardWidget extends StatefulWidget {
   final bool hasFocus;
   final Widget child;
+  ///The list of keystrokes and methods called
   final List<KeyAction> keyMap;
+  ///The keystroke used to show and dismiss the helpscreen
   final LogicalKeyboardKey showDismissKey;
+  ///The number of columns of text in the help screen
   final int columnCount;
   final bool showMap;
   final VoidCallback? callbackOnHide;
+
+  ///The color of the surface of the card used to display a help screen.
+  ///If null, the card color of the inherited [ThemeData.colorScheme] will be used
+  final Color? backgroundColor;
+
+  ///The text style for the text used in the help screen. If null, the
+  ///inherited [TextTheme.bodyText2] is used.
+  final TextStyle? textStyle;
 
   /// Creates a new KeyboardWidget with a list of Keystrokes and associated
   /// functions [keyMap], a required [child] widget and an optional
   /// keystroke to show and dismiss the displayed map, [showDismissKey].
   ///
-  /// The number of columns used to display the options can be optionally
+  /// The number of columns of text used to display the options can be optionally
   /// chosen. It defaults to one column.
+  ///
+  /// The [backgroundColor] and [textColor] set the background of the
+  /// card used to display the help screen background and text respectively.
+  /// Otherwise they default to the inherited theme's card and primary text
+  /// colors.
   ///
   /// By default the F1 keyboard key is used to show and dismiss the keymap
   /// display. If another key is preferred, set the [showDismissKey] to another
@@ -115,6 +131,7 @@ class KeyboardWidget extends StatefulWidget {
   ///
   const KeyboardWidget({Key? key, required this.keyMap, this.hasFocus = false,
     required this.child, this.showDismissKey=LogicalKeyboardKey.f1, this.columnCount = 1,
+    this.backgroundColor, this.textStyle,
     this.showMap = false, this.callbackOnHide,
   }) :
     assert (columnCount > 0),
@@ -126,17 +143,18 @@ class KeyboardWidget extends StatefulWidget {
 
 }
 
+
 class KeyboardWidgetState extends State<KeyboardWidget> {
   late FocusNode _focusNode;
   late OverlayEntry _overlayEntry;
   late bool showingOverlay;
 
 
-  static const Color background = Color(0xFF0a0a0a);
-  static const Color shadow = Color(0xaa000000);
-  static const Color text = Colors.white;
+  static const Color defaultBackground = Color(0xFF0a0a0a);
+  static const Color shadow = Color(0x77000000);
+  static const Color defaultTextColor = Colors.white;
 
-  static const TextStyle _textStyle = TextStyle(color: text, fontSize: 12);
+  static const TextStyle defaultTextStyle = TextStyle(color: defaultTextColor, fontSize: 12);
 
   @override
   void initState() {
@@ -159,7 +177,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     super.dispose();
   }
   //returns text surrounded with a rounded-rect
-  Widget _getBubble(String text, Color color, Color color2, {bool invert = false}) {
+  Widget _getBubble(String text, Color color, Color color2, TextStyle _textStyle, {bool invert = false}) {
     // bool isDark = background.computeLuminance() < .5;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
@@ -229,7 +247,13 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
 
   OverlayEntry _buildOverlay() {
 
-    MediaQueryData media = MediaQuery.of(context);
+    final ThemeData theme = Theme.of(context);
+    TextStyle _textStyle = widget.textStyle?? theme.dataTableTheme.dataTextStyle??
+        theme.textTheme.bodyText2??defaultTextStyle;
+    Color background = widget.backgroundColor??theme.cardColor;
+    Color textColor = _textStyle.color??defaultTextColor;
+
+    final MediaQueryData media = MediaQuery.of(context);
     Size size = media.size;
     int length = widget.keyMap.length;
 
@@ -240,7 +264,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     }
     List<DataColumn> columns = [];
     for (int k = 0; k < widget.columnCount; k++) {
-      columns.add(const DataColumn(label: Text('m'), numeric: true));
+      columns.add(const DataColumn(label: Text('m'), numeric: true)); //right-align
       columns.add(const DataColumn(label: Text('k')));
       columns.add(const DataColumn(label: Text('d')));
     }
@@ -250,12 +274,13 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       for (int t = 0; t < widget.columnCount; t++) {
         KeyAction rep = widget.keyMap[k*widget.columnCount+t];
         String modifiers = _getModifiers(rep);
-        dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers, text,
-          background, invert: true)) : DataCell.empty);
-        dataRow.add(DataCell(_getBubble(rep.label, text, background)));
+        dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers, textColor,
+          background, _textStyle, invert: true)) : DataCell.empty);
+        dataRow.add(DataCell(_getBubble(rep.label, textColor, background, _textStyle)));
         dataRow.add(DataCell(Container(
           margin: const EdgeInsets.only(right: 32),
-          child: Text(rep.description, overflow: TextOverflow.ellipsis, style: _textStyle,))));
+          child: Text(rep.description, overflow: TextOverflow.ellipsis,
+            style: _textStyle,))));
       }
     }
     if (widget.keyMap.length%widget.columnCount != 0) {
@@ -265,15 +290,15 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         KeyAction rep = widget.keyMap[k];
         String modifiers = _getModifiers(rep);
         dataRow.add(
-            modifiers.isNotEmpty ? DataCell(_getBubble(modifiers, text, background)) : DataCell
-                .empty);
-        dataRow.add(DataCell(_getBubble(rep.label, text, background)));
+          modifiers.isNotEmpty ? DataCell(_getBubble(modifiers, textColor,
+          background, _textStyle)) : DataCell.empty);
+        dataRow.add(DataCell(_getBubble(rep.label, textColor, background,
+          _textStyle, invert: true)));
         dataRow.add(DataCell(Text(
           rep.description, overflow: TextOverflow.ellipsis,
           style: _textStyle,)));
       }
-      for (int k = widget.keyMap.length; k <
-          rowCount * widget.columnCount; k++) {
+      for (int k = widget.keyMap.length; k < rowCount * widget.columnCount; k++) {
         dataRow.add(DataCell.empty);
         dataRow.add(DataCell.empty);
         dataRow.add(DataCell.empty);
@@ -281,20 +306,21 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     }
     List<DataRow> rows = [];
     for (List<DataCell> cells in tableRows) {
-      rows.add(DataRow(cells: cells));
+      rows.add(DataRow(cells: cells, ));
     }
 
     Widget grid = Theme(
       data: Theme.of(context).copyWith(
-        dividerColor: Colors.transparent, //const Color(0x11777777),
+        dividerColor: Colors.transparent,
       ),
       child: DataTable(
         columnSpacing: 6,
-        decoration: BoxDecoration(color: background,
-            border: Border.all(color: background, width: 18),
-            borderRadius: BorderRadius.circular(18),
+        decoration: BoxDecoration(
+          color: background,
+          border: Border.all(color: background, width: 18),
+          borderRadius: BorderRadius.circular(18),
           boxShadow: const [
-            BoxShadow(color: shadow, blurRadius: 50, spreadRadius: 5)
+            BoxShadow(color: shadow, blurRadius: 20, spreadRadius: 5)
           ]
         ),
         dividerThickness: 1,
@@ -316,23 +342,14 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
                   width: size.width, // - padding.left - padding.right - 40,
                   height: size.height, // - padding.top - padding.bottom - 40,
                   decoration: const BoxDecoration(
-                    color: Colors.black26,
+                    color: Colors.black12,
                   ),
                   child: Material(
                       color: Colors.transparent,
                       child: Center(child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
                         alignment: Alignment.center,
-                        // width: boxWidth,
-                        // height: rowHeight*rows+horizontalMargin*2,
-                        // decoration: BoxDecoration(color: const Color(0xDD2a2a2a),
-                        //   borderRadius: BorderRadius.circular(18),
-                        //   boxShadow: const [
-                        //     BoxShadow(color: Color(0xDD2a2a2a), blurRadius: 50, spreadRadius: 5)
-                        //   ]
-                        // ),
                         child: grid,
-                        // child:const Text('OVERLAY', style: TextStyle(color: Colors.white),)
                       )
                     )
                   ),
@@ -405,9 +422,9 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     setState(() {
       showingOverlay = false;
       _overlayEntry.remove();
-      // if (widget.callbackOnHide != null) {
-      //   widget.callbackOnHide!();
-      // }
+      if (widget.callbackOnHide != null) {
+        widget.callbackOnHide!();
+      }
     });
   }
 }
