@@ -4,7 +4,7 @@ A keymap widget letting a developer easily allow end users to use keyboard short
 and an associated help screen overlay to any app.
 
 ## Getting started
-[![pub package](https://img.shields.io/pub/v/cupertino_icons.svg)](https://pub.dev/packages/cupertino_icons)
+[![pub package](https://img.shields.io/pub/v/cupertino_icons.svg)](https://pub.dev/packages/keymap)
 
 ```
 dependencies:
@@ -53,7 +53,13 @@ Add those shortcuts into your widget tree
         ),
 
 ```
-![example app](doc/app_image.png)
+This creates keyboard shortcuts that call the referenced methods and a help screen
+that can be called up by pressing F1:
+
+![example app in light mode](doc/light_mode.png)
+
+It will shift colors to match your app's theme (here in dark mode)
+![dark mode](doc/dark_mode.png)
 ## Additional information
 
 TODO: Tell users more about the package: where to find more information, how to 
