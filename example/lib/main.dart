@@ -20,6 +20,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.purple,
+      ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
