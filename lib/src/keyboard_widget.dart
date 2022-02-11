@@ -68,21 +68,22 @@ class KeyAction {
         label = '\u232B';
       }
     }
-    else if (key == LogicalKeyboardKey.enter) {
-      if (kIsWeb) {
-        label = 'enter';
-      }
-      else {
-        label = '\u2B90';
-      }
-    }
+    // else if (key == LogicalKeyboardKey.enter) {
+    //   if (kIsWeb) {
+    //     label = 'enter';
+    //   }
+    //   else {
+    //     label = '\u2B90';
+    //   }
+    // }
     return label;
   }
 
   bool matchesEvent(RawKeyEvent event) {
-    return event.logicalKey == keyActivator.trigger && isControlPressed == event.isControlPressed &&
-    isMetaPressed == event.isMetaPressed && isShiftPressed == event.isShiftPressed &&
-    isAltPressed == event.isAltPressed;
+    return event.logicalKey == keyActivator.trigger &&
+      isControlPressed == event.isControlPressed && isMetaPressed ==
+      event.isMetaPressed && isShiftPressed == event.isShiftPressed &&
+      isAltPressed == event.isAltPressed;
   }
 }
 
@@ -93,7 +94,7 @@ class KeyboardWidget extends StatefulWidget {
   final Widget child;
   ///The list of keystrokes and methods called
   final List<KeyAction> keyMap;
-  ///The keystroke used to show and dismiss the helpscreen
+  ///The keystroke used to show and dismiss the help screen
   final LogicalKeyboardKey showDismissKey;
   ///The number of columns of text in the help screen
   final int columnCount;
@@ -105,7 +106,7 @@ class KeyboardWidget extends StatefulWidget {
   final Color? backgroundColor;
 
   ///The text style for the text used in the help screen. If null, the
-  ///inherited [TextTheme.bodyText2] is used.
+  ///inherited [TextTheme.bodyText1] is used.
   final TextStyle? textStyle;
 
   /// Creates a new KeyboardWidget with a list of Keystrokes and associated
@@ -129,7 +130,7 @@ class KeyboardWidget extends StatefulWidget {
   /// You would usually pair this with a function [callbackOnHide] so that the caller
   /// to show the help screen can be notified when it is hidden
   ///
-  const KeyboardWidget({Key? key, required this.keyMap, this.hasFocus = false,
+  const KeyboardWidget({Key? key, required this.keyMap, this.hasFocus = true,
     required this.child, this.showDismissKey=LogicalKeyboardKey.f1, this.columnCount = 1,
     this.backgroundColor, this.textStyle,
     this.showMap = false, this.callbackOnHide,
@@ -151,7 +152,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
 
 
   static const Color defaultBackground = Color(0xFF0a0a0a);
-  static const Color shadow = Color(0x77000000);
+  static const Color shadow = Color(0x55000000);
   static const Color defaultTextColor = Colors.white;
 
   static const TextStyle defaultTextStyle = TextStyle(color: defaultTextColor, fontSize: 12);
@@ -249,7 +250,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
 
     final ThemeData theme = Theme.of(context);
     TextStyle _textStyle = widget.textStyle?? theme.dataTableTheme.dataTextStyle??
-        theme.textTheme.bodyText2??defaultTextStyle;
+        theme.textTheme.bodyText1??defaultTextStyle;
     Color background = widget.backgroundColor??theme.cardColor;
     Color textColor = _textStyle.color??defaultTextColor;
 
@@ -320,7 +321,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
           border: Border.all(color: background, width: 18),
           borderRadius: BorderRadius.circular(18),
           boxShadow: const [
-            BoxShadow(color: shadow, blurRadius: 20, spreadRadius: 5)
+            BoxShadow(color: shadow, blurRadius: 30, spreadRadius: 1)
           ]
         ),
         dividerThickness: 1,
@@ -361,6 +362,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   }
   @override
   Widget build(BuildContext context) {
+    //to be sure, only use on non-mobile platforms
     if (kIsWeb || Platform.isFuchsia || Platform.isLinux || Platform.isMacOS ||
         Platform.isWindows) {
           FocusScope.of(context).requestFocus(_focusNode);
@@ -374,10 +376,13 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   Widget _getKeyboardListener(BuildContext context) {
     return Focus(
       child: widget.child,
+      canRequestFocus: true,
+      descendantsAreFocusable: true,
+      skipTraversal: true,
       focusNode: _focusNode,
       autofocus: widget.hasFocus,
       onKey: (FocusNode node, RawKeyEvent event) {
-        if (event.runtimeType == RawKeyUpEvent) {
+        if (event.runtimeType == RawKeyDownEvent) {
           LogicalKeyboardKey key = event.logicalKey;
 
           if (key == widget.showDismissKey) {

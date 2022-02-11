@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void increaseBy(int amount) {
     setState(() {
-      _counter += 10;
+      _counter += amount;
     });
   }
 
@@ -85,27 +85,27 @@ class _MyHomePageState extends State<MyHomePage> {
       KeyAction(LogicalKeyboardKey.keyD, 'decrement the counter', _decrementCounter,
           isAltPressed: true, isControlPressed: true),
       KeyAction(LogicalKeyboardKey.enter,'increase by 10',
-              (){ increaseBy(10); },
+          (){ increaseBy(10); },
           isControlPressed: true
       ),
       KeyAction(LogicalKeyboardKey.arrowUp,'increase by 5',
-              (){ increaseBy(5); },
+          (){ increaseBy(5); },
           isAltPressed: true
       ),
       KeyAction(LogicalKeyboardKey.arrowDown,'decrease by 5',
-              (){ increaseBy(-5); },
+          (){ increaseBy(-5); },
           isAltPressed: true
       ),
       KeyAction(LogicalKeyboardKey.keyR,'reset the counter ',
-              (){ _resetCounter();},
+          (){ _resetCounter();},
           isMetaPressed: true
       ),
       KeyAction(LogicalKeyboardKey.enter,'reset the counter ',
-              (){ _resetCounter();},
+          (){ _resetCounter();},
           isShiftPressed: true
       ),
-      KeyAction(LogicalKeyboardKey.delete,'round down ',
-              (){
+      KeyAction(LogicalKeyboardKey.delete,'round down (by 10s)',
+          (){
             setState(() {
               _counter = _counter~/10;
             });
@@ -113,11 +113,18 @@ class _MyHomePageState extends State<MyHomePage> {
           isShiftPressed: true
       ),
       KeyAction(LogicalKeyboardKey.keyM, 'multiply by 10',
-              () {
+          () {
             setState(() {
               _counter = _counter*10;
             });
-          }
+          }, isShiftPressed: true
+      ),
+      KeyAction(LogicalKeyboardKey.keyD, 'Divide by 10',
+          () {
+            setState(() {
+              _counter = _counter~/10;
+            });
+          },
       )
     ];
   }
@@ -128,6 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //all key-presses are registered
     return KeyboardWidget(
       key: _key,
+      showDismissKey: LogicalKeyboardKey.f2,
       keyMap: shortcuts, columnCount: 2,
       child: Scaffold(
         appBar: AppBar(
