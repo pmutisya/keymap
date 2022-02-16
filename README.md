@@ -60,10 +60,11 @@ You can optionally set the number of columns for the text shown in the help scre
 This creates keyboard shortcuts that call the referenced methods and a help screen
 that can be called up by pressing F1 (or any key you choose):
 
-![<img src="https://github.com/pmutisya/keymap/raw/main/doc/light_mode.png">](doc/light_mode.png)
+<img src="https://github.com/pmutisya/keymap/raw/main/doc/light_mode.png"/>
 
 It will shift colors to match your app's theme (here in dark mode)
-![<img src="https://github.com/pmutisya/keymap/raw/main/doc/dark_mode.png">](doc/dark_mode.png)
+
+<img src="https://github.com/pmutisya/keymap/raw/main/doc/dark_mode.png"/>
 
 ## Important information
 
