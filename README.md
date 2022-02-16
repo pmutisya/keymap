@@ -67,7 +67,3 @@ that can be called up by pressing F1 (or any key you choose):
 It will shift colors to match your app's theme (here in dark mode)
 
 <img src="https://github.com/pmutisya/keymap/raw/main/doc/dark_mode.png"/>
-
-## Important information
-
-This is pre-beta and the API will probably change in the future.
