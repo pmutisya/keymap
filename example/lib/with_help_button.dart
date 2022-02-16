@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keymap/keymap.dart';
 
-///This example shows how to use the keymap by
-///inserting a KeyMap and related functions to the standard
-///Flutter counter app. It adds a global key to let the user
+///This example shows how to link the help screen to a callback
+///and display it. It also shows changing the default key used
+///to show the help screen.
+/// It uses a global key to let the user
 ///call up the help screen with a button in the app bar.
 void main() {
   runApp(const MyApp());
@@ -40,9 +41,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //used by the help icon button in the AppBar
-  GlobalKey<KeyboardWidgetState> _key = GlobalKey();
   int _counter = 0;
+
   //The shortcuts used by the KeyMap
   late List<KeyAction> shortcuts;
 
@@ -129,12 +129,11 @@ class _MyHomePageState extends State<MyHomePage> {
     ];
   }
 
+  //used by the help icon button in the AppBar
+  final GlobalKey<KeyboardWidgetState> _key = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
-    //the KeyBoardWidget is at the root of the app so that
-    //all key-presses are registered. This one has a help screen
-    //with two columns
-    //it has a key to allow using a widget to show help screen
     return KeyboardWidget(
       key: _key,
       showDismissKey: LogicalKeyboardKey.f2,

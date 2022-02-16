@@ -5,7 +5,7 @@ and an associated help screen overlay to any app.
 
 ## Getting started
 
-[//]: # ([![pub package]&#40;https://img.shields.io/pub/v/keymap.svg&#41;]&#40;https://pub.dev/packages/keymap&#41;)
+[![pub package](https://img.shields.io/pub/v/keymap.svg)](https://pub.dev/packages/keymap)
 
 ```
 dependencies:
@@ -16,7 +16,7 @@ dependencies:
 
 - Easily add keyboard shortcuts to any widget tree
 - Clear, readable help screen 
-- Insert at any point in the widget tree
+- Handles focus, passing up unhandled key events
 - Respects application theme colors and fonts
 
 ## Usage
@@ -60,10 +60,11 @@ You can optionally set the number of columns for the text shown in the help scre
 This creates keyboard shortcuts that call the referenced methods and a help screen
 that can be called up by pressing F1 (or any key you choose):
 
-![example app in light mode](doc/light_mode.png)
+![<img src="https://github.com/pmutisya/keymap/raw/main/doc/light_mode.png">](doc/light_mode.png)
 
 It will shift colors to match your app's theme (here in dark mode)
-![dark mode](doc/dark_mode.png)
-## Additional information
+![<img src="https://github.com/pmutisya/keymap/raw/main/doc/dark_mode.png">](doc/dark_mode.png)
+
+## Important information
 
 This is pre-beta and the API will probably change in the future.

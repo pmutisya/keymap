@@ -26,14 +26,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class IncrementIntent extends Intent {
-  const IncrementIntent();
-}
-
-class DecrementIntent extends Intent {
-  const DecrementIntent();
-}
-
 class MyStatefulWidget extends StatefulWidget {
   const MyStatefulWidget({Key? key}) : super(key: key);
 
