@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         primarySwatch: Colors.purple,
       ),
+      debugShowCheckedModeBanner: false,
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -40,7 +41,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   //used by the help icon button in the AppBar
-  late GlobalKey<KeyboardWidgetState> _key;
+  GlobalKey<KeyboardWidgetState> _key = GlobalKey();
   int _counter = 0;
   //The shortcuts used by the KeyMap
   late List<KeyAction> shortcuts;
@@ -48,7 +49,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _key = GlobalKey();
     shortcuts = _getShortcuts();
   }
 
@@ -132,18 +132,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     //the KeyBoardWidget is at the root of the app so that
-    //all key-presses are registered
+    //all key-presses are registered. This one has a help screen
+    //with two columns
+    //it has a key to allow using a widget to show help screen
     return KeyboardWidget(
       key: _key,
       showDismissKey: LogicalKeyboardKey.f2,
-      keyMap: shortcuts, columnCount: 2,
+      bindings: shortcuts,
+        columnCount: 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
           actions: [
             Tooltip(message: 'Show keyboard shortcuts',
-             child: IconButton(icon: const Icon(Icons.help_outline), onPressed: () {
-              _key.currentState?.toggleOverlay();
+             child: IconButton(icon: const Icon(Icons.help_outline),
+               onPressed: () {
+                _key.currentState?.toggleOverlay();
             },)),
           ],
         ),

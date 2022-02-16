@@ -3,97 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-///A combination of a [LogicalKeyboardKey] (e.g., control-shift-A), a description
-///of what action that keystroke should trigger (e.g., "select all text"),
-///and a callback method to be invoked when that keystroke is pressed.
-@immutable
-class KeyAction {
-  final SingleActivator keyActivator;
-  final String description;
-  final VoidCallback callback;
-
-  ///Creates a KeystrokeRep with the given LogicalKeyboardKey [keyStroke],
-  ///[description] and [callback] method. Includes optional bool values (defaulting
-  ///to false) for key modifiers for meta [isMetaPressed], shift [isShiftPressed],
-  ///alt [isAltPressed]
-  KeyAction(LogicalKeyboardKey keyStroke, this.description, this.callback,
-      {bool isControlPressed = false, bool isMetaPressed = false, bool isShiftPressed = false, bool isAltPressed = false}):
-      keyActivator = SingleActivator(keyStroke, control: isControlPressed, shift: isShiftPressed, alt: isAltPressed, meta: isMetaPressed);
-
-  bool get isControlPressed => keyActivator.control;
-  bool get isMetaPressed => keyActivator.meta;
-  bool get isShiftPressed => keyActivator.shift;
-  bool get isAltPressed => keyActivator.alt;
-
-  String get label {
-    LogicalKeyboardKey key = keyActivator.trigger;
-    String label = keyActivator.trigger.keyLabel;
-    if (key == LogicalKeyboardKey.arrowRight) {
-      if (kIsWeb) {
-        label = 'arrow right';
-      }
-      else {
-        label = '\u2192';
-      }
-    }
-    else if (key == LogicalKeyboardKey.arrowLeft) {
-      if (kIsWeb) {
-        label = 'arrow left';
-      }
-      else {
-        label = '\u2190';
-      }
-    }
-    else if (key == LogicalKeyboardKey.arrowUp) {
-      if (kIsWeb) {
-        label = 'arrow up';
-      }
-      else {
-        label = '\u2191';
-      }
-    }
-    else if (key == LogicalKeyboardKey.arrowDown) {
-      if (kIsWeb) {
-        label = 'arrow down';
-      }
-      else {
-        label = '\u2193';
-      }
-    }
-    else if (key == LogicalKeyboardKey.delete) {
-      if (kIsWeb) {
-        label = 'delete';
-      }
-      else {
-        label = '\u232B';
-      }
-    }
-    // else if (key == LogicalKeyboardKey.enter) {
-    //   if (kIsWeb) {
-    //     label = 'enter';
-    //   }
-    //   else {
-    //     label = '\u2B90';
-    //   }
-    // }
-    return label;
-  }
-
-  bool matchesEvent(RawKeyEvent event) {
-    return event.logicalKey == keyActivator.trigger &&
-      isControlPressed == event.isControlPressed && isMetaPressed ==
-      event.isMetaPressed && isShiftPressed == event.isShiftPressed &&
-      isAltPressed == event.isAltPressed;
-  }
-}
-
 /// A keymap widget allowing easy addition of shortcut keys to any widget tree
 /// with an optional help screen overlay
 class KeyboardWidget extends StatefulWidget {
   final bool hasFocus;
   final Widget child;
   ///The list of keystrokes and methods called
-  final List<KeyAction> keyMap;
+  final List<KeyAction> bindings;
   ///The keystroke used to show and dismiss the help screen
   final LogicalKeyboardKey showDismissKey;
   ///The number of columns of text in the help screen
@@ -106,11 +22,11 @@ class KeyboardWidget extends StatefulWidget {
   final Color? backgroundColor;
 
   ///The text style for the text used in the help screen. If null, the
-  ///inherited [TextTheme.bodyText1] is used.
+  ///inherited [TextTheme.labelSmall] is used.
   final TextStyle? textStyle;
 
   /// Creates a new KeyboardWidget with a list of Keystrokes and associated
-  /// functions [keyMap], a required [child] widget and an optional
+  /// functions [bindings], a required [child] widget and an optional
   /// keystroke to show and dismiss the displayed map, [showDismissKey].
   ///
   /// The number of columns of text used to display the options can be optionally
@@ -130,9 +46,9 @@ class KeyboardWidget extends StatefulWidget {
   /// You would usually pair this with a function [callbackOnHide] so that the caller
   /// to show the help screen can be notified when it is hidden
   ///
-  const KeyboardWidget({Key? key, required this.keyMap, this.hasFocus = true,
-    required this.child, this.showDismissKey=LogicalKeyboardKey.f1, this.columnCount = 1,
-    this.backgroundColor, this.textStyle,
+  const KeyboardWidget({Key? key, required this.bindings, this.hasFocus = true,
+    required this.child, this.showDismissKey = LogicalKeyboardKey.f1,
+    this.columnCount = 1, this.backgroundColor, this.textStyle,
     this.showMap = false, this.callbackOnHide,
   }) :
     assert (columnCount > 0),
@@ -155,7 +71,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   static const Color shadow = Color(0x55000000);
   static const Color defaultTextColor = Colors.white;
 
-  static const TextStyle defaultTextStyle = TextStyle(color: defaultTextColor, fontSize: 12);
+  static const TextStyle defaultTextStyle = TextStyle(color: defaultTextColor, fontSize: 11);
 
   @override
   void initState() {
@@ -172,6 +88,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       _focusNode.requestFocus();
     }
   }
+
   @override
   void dispose() {
     _focusNode.dispose();
@@ -236,7 +153,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   }
 
   KeyAction? _findMatch(RawKeyEvent event) {
-    for (KeyAction rep in widget.keyMap) {
+    for (KeyAction rep in widget.bindings) {
       if (rep.matchesEvent(event)) {
         return rep;
       }
@@ -247,16 +164,15 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   static const double horizontalMargin = 16.0;
 
   OverlayEntry _buildOverlay() {
-
     final ThemeData theme = Theme.of(context);
-    TextStyle _textStyle = widget.textStyle?? theme.dataTableTheme.dataTextStyle??
-        theme.textTheme.bodyText1??defaultTextStyle;
+    TextStyle _textStyle = widget.textStyle??
+        theme.textTheme.labelSmall?? defaultTextStyle;
     Color background = widget.backgroundColor??theme.cardColor;
     Color textColor = _textStyle.color??defaultTextColor;
 
     final MediaQueryData media = MediaQuery.of(context);
     Size size = media.size;
-    int length = widget.keyMap.length;
+    int length = widget.bindings.length;
 
     int rowCount = (length/widget.columnCount).ceil();
     List<List<DataCell>> tableRows = [];
@@ -269,26 +185,25 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       columns.add(const DataColumn(label: Text('k')));
       columns.add(const DataColumn(label: Text('d')));
     }
-    int fullRows = widget.keyMap.length~/widget.columnCount;
+    int fullRows = widget.bindings.length~/widget.columnCount;
     for (int k = 0; k < fullRows; k++) {
       List<DataCell> dataRow = tableRows[k];
       for (int t = 0; t < widget.columnCount; t++) {
-        KeyAction rep = widget.keyMap[k*widget.columnCount+t];
+        KeyAction rep = widget.bindings[k*widget.columnCount+t];
         String modifiers = _getModifiers(rep);
         dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers, textColor,
           background, _textStyle, invert: true)) : DataCell.empty);
         dataRow.add(DataCell(_getBubble(rep.label, textColor, background, _textStyle)));
-        dataRow.add(DataCell(Container(
-          margin: const EdgeInsets.only(right: 32),
-          child: Text(rep.description, overflow: TextOverflow.ellipsis,
-            style: _textStyle,))));
+        dataRow.add(DataCell(
+          Text(rep.description, overflow: TextOverflow.ellipsis, style: _textStyle,),
+        ),);
       }
     }
-    if (widget.keyMap.length%widget.columnCount != 0) {
+    if (widget.bindings.length%widget.columnCount != 0) {
       List<DataCell> dataRow = tableRows[fullRows];
       for (int k = fullRows * widget.columnCount; k <
-          widget.keyMap.length; k++) {
-        KeyAction rep = widget.keyMap[k];
+          widget.bindings.length; k++) {
+        KeyAction rep = widget.bindings[k];
         String modifiers = _getModifiers(rep);
         dataRow.add(
           modifiers.isNotEmpty ? DataCell(_getBubble(modifiers, textColor,
@@ -299,7 +214,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
           rep.description, overflow: TextOverflow.ellipsis,
           style: _textStyle,)));
       }
-      for (int k = widget.keyMap.length; k < rowCount * widget.columnCount; k++) {
+      for (int k = widget.bindings.length; k < rowCount * widget.columnCount; k++) {
         dataRow.add(DataCell.empty);
         dataRow.add(DataCell.empty);
         dataRow.add(DataCell.empty);
@@ -315,6 +230,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         dividerColor: Colors.transparent,
       ),
       child: DataTable(
+        border: TableBorder.all(color: Colors.orange),
         columnSpacing: 6,
         decoration: BoxDecoration(
           color: background,
@@ -326,7 +242,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         ),
         dividerThickness: 1,
         columns: columns,
-        rows: rows, dataRowHeight: 44, headingRowHeight: 0,
+        rows: rows, dataRowHeight: _textStyle.fontSize!+24, headingRowHeight: 0,
       )
     );
 
@@ -365,8 +281,8 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     //to be sure, only use on non-mobile platforms
     if (kIsWeb || Platform.isFuchsia || Platform.isLinux || Platform.isMacOS ||
         Platform.isWindows) {
-          FocusScope.of(context).requestFocus(_focusNode);
-          return _getKeyboardListener(context);
+      FocusScope.of(context).requestFocus(_focusNode);
+      return _getKeyboardListener(context);
     }
     else {
       return widget.child;
@@ -409,6 +325,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         return KeyEventResult.ignored;
       },);
   }
+
   void toggleOverlay() {
     setState(() {
       if (!showingOverlay) {
@@ -423,6 +340,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       }
     });
   }
+
   void _hideOverlay() {
     setState(() {
       showingOverlay = false;
@@ -434,4 +352,87 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   }
 }
 
+///A combination of a [LogicalKeyboardKey] (e.g., control-shift-A), a description
+///of what action that keystroke should trigger (e.g., "select all text"),
+///and a callback method to be invoked when that keystroke is pressed.
+@immutable
+class KeyAction {
+  final SingleActivator keyActivator;
+  final String description;
+  final VoidCallback callback;
+
+  ///Creates a KeystrokeRep with the given LogicalKeyboardKey [keyStroke],
+  ///[description] and [callback] method. Includes optional bool values (defaulting
+  ///to false) for key modifiers for meta [isMetaPressed], shift [isShiftPressed],
+  ///alt [isAltPressed]
+  KeyAction(LogicalKeyboardKey keyStroke, this.description, this.callback,
+      {bool isControlPressed = false, bool isMetaPressed = false, bool isShiftPressed = false, bool isAltPressed = false}):
+        keyActivator = SingleActivator(keyStroke, control: isControlPressed, shift: isShiftPressed, alt: isAltPressed, meta: isMetaPressed);
+
+  bool get isControlPressed => keyActivator.control;
+  bool get isMetaPressed => keyActivator.meta;
+  bool get isShiftPressed => keyActivator.shift;
+  bool get isAltPressed => keyActivator.alt;
+
+  String get label {
+    LogicalKeyboardKey key = keyActivator.trigger;
+    String label = keyActivator.trigger.keyLabel;
+    if (key == LogicalKeyboardKey.arrowRight) {
+      if (kIsWeb) {
+        label = 'arrow right';
+      }
+      else {
+        label = '\u2192';
+      }
+    }
+    else if (key == LogicalKeyboardKey.arrowLeft) {
+      if (kIsWeb) {
+        label = 'arrow left';
+      }
+      else {
+        label = '\u2190';
+      }
+    }
+    else if (key == LogicalKeyboardKey.arrowUp) {
+      if (kIsWeb) {
+        label = 'arrow up';
+      }
+      else {
+        label = '\u2191';
+      }
+    }
+    else if (key == LogicalKeyboardKey.arrowDown) {
+      if (kIsWeb) {
+        label = 'arrow down';
+      }
+      else {
+        label = '\u2193';
+      }
+    }
+    else if (key == LogicalKeyboardKey.delete) {
+      if (kIsWeb) {
+        label = 'delete';
+      }
+      else {
+        label = '\u232B';
+      }
+    }
+    // else if (key == LogicalKeyboardKey.enter) {
+    //   if (kIsWeb) {
+    //     label = 'enter';
+    //   }
+    //   else {
+    //     label = '\u2B90';
+    //   }
+    // }
+    return label;
+  }
+
+  bool matchesEvent(RawKeyEvent event) {
+    return event.logicalKey == keyActivator.trigger &&
+        isControlPressed == event.isControlPressed && isMetaPressed ==
+        event.isMetaPressed && isShiftPressed == event.isShiftPressed &&
+        isAltPressed == event.isAltPressed;
+  }
+}
 

@@ -97,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return KeyboardWidget(
       backgroundColor: Colors.black87,
       textStyle: const TextStyle(color: Colors.yellow),
-      keyMap: shortcuts, columnCount: 2,
+      bindings: shortcuts, columnCount: 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
