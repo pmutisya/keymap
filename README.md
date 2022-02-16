@@ -3,6 +3,8 @@
 A keymap widget letting a developer easily allow end users to use keyboard shortcuts
 and an associated help screen overlay to any app.
 
+This is pre-alpha and the API will probably change in the future.
+
 ## Getting started
 
 [![pub package](https://img.shields.io/pub/v/keymap.svg)](https://pub.dev/packages/keymap)
