@@ -40,16 +40,17 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   @override
   Widget build(BuildContext context) {
     return KeyboardWidget(
+      columnCount: 2,
       bindings: [
-        KeyAction(LogicalKeyboardKey.keyA,'increment the counter', () {
+        KeyAction(LogicalKeyboardKey.arrowUp,'increment the counter', () {
             setState(() {
               count++;
-          });}, isControlPressed: true),
-        KeyAction(LogicalKeyboardKey.keyD, 'decrement the counter', () {
+          });},),
+        KeyAction(LogicalKeyboardKey.arrowDown, 'decrement the counter', () {
           setState(() {
             count--;
           });
-        }, isAltPressed: true, isControlPressed: true),
+        },),
       ],
       child: Column(
         children: [
