@@ -77,7 +77,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   static const Color defaultTextColor = Colors.white;
 
   static const TextStyle defaultTextStyle =
-      TextStyle(color: defaultTextColor, fontSize: 11);
+      TextStyle(color: defaultTextColor, fontSize: 12);
 
   @override
   void initState() {
@@ -102,21 +102,18 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   }
 
   //returns text surrounded with a rounded-rect
-  Widget _getBubble(
-      String text, Color color, Color color2, TextStyle _textStyle,
-      {bool invert = false}) {
+  Widget _getBubble(String text, Color color, Color color2,
+      TextStyle _textStyle, {bool invert = false}) {
     // bool isDark = background.computeLuminance() < .5;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
           color: invert ? color : color2,
           borderRadius: BorderRadius.circular(4),
           border: Border.all(color: color)),
       child: Text(text,
-          style: _textStyle.copyWith(
-              color: invert
-                  ? color2
-                  : color)), //isDark? _whiteStyle :_blackStyle,),
+          style: _textStyle.copyWith(color: invert ? color2 : color)
+      ), //isDark? _whiteStyle :_blackStyle,),
     );
   }
 
@@ -266,7 +263,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
           dividerThickness: 1,
           columns: columns,
           rows: rows,
-          dataRowHeight: _textStyle.fontSize ?? 12 + 24,
+          dataRowHeight: 36.0 + (_textStyle.fontSize?? 12.0),
           headingRowHeight: 0,
         ));
 
