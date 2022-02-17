@@ -95,9 +95,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return KeyboardWidget(
-      backgroundColor: Colors.black87,
+      backgroundColor: Colors.purple,
       textStyle: const TextStyle(color: Colors.yellow),
-      bindings: shortcuts, columnCount: 2,
+      bindings: shortcuts, columnCount: 1,
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),

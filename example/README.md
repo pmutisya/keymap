@@ -1,4 +1,5 @@
 # example
-
-An example application using the keymap widget in the classic
-Flutter example generated with new projects.
+The examples directory contains
+* **main.dart** - a simple example built from the standard Flutter counter app
+* **with_help_button.dart** - shows how to use a help button to bring up the keymap screen
+* **formatting_example.dart** - shows how to format the contents of the keymap help screen 

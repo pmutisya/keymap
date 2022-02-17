@@ -230,7 +230,6 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         dividerColor: Colors.transparent,
       ),
       child: DataTable(
-        border: TableBorder.all(color: Colors.orange),
         columnSpacing: 6,
         decoration: BoxDecoration(
           color: background,
@@ -242,7 +241,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         ),
         dividerThickness: 1,
         columns: columns,
-        rows: rows, dataRowHeight: _textStyle.fontSize!+24, headingRowHeight: 0,
+        rows: rows, dataRowHeight: _textStyle.fontSize??12+24, headingRowHeight: 0,
       )
     );
 
