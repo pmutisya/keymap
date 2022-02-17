@@ -1,6 +1,6 @@
 name: keymap
-description: a reusable keymap widget
-version: 0.0.4
+description: A reusable keyboard shortcuts widget with a flexible, minimal UI and focus handling.
+version: 0.0.5
 homepage: https://github.com/pmutisya/keymap
 
 environment:
