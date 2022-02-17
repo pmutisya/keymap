@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         primarySwatch: Colors.purple,
       ),
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, //the banner can block view of the help button
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
