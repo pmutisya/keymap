@@ -110,8 +110,9 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   }
 
   //returns text surrounded with a rounded-rect
-  Widget _getBubble(String text, Color color, Color color2,
-      TextStyle _textStyle, {bool invert = false}) {
+  Widget _getBubble(
+      String text, Color color, Color color2, TextStyle _textStyle,
+      {bool invert = false}) {
     // bool isDark = background.computeLuminance() < .5;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
@@ -120,8 +121,10 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
           borderRadius: BorderRadius.circular(4),
           border: Border.all(color: color)),
       child: Text(text,
-          style: _textStyle.copyWith(color: invert ? color2 : color)
-      ), //isDark? _whiteStyle :_blackStyle,),
+          style: _textStyle.copyWith(
+              color: invert
+                  ? color2
+                  : color)), //isDark? _whiteStyle :_blackStyle,),
     );
   }
 
@@ -231,8 +234,9 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         dataRow.add(modifiers.isNotEmpty
             ? DataCell(_getBubble(modifiers, textColor, background, _textStyle))
             : DataCell.empty);
-        dataRow.add(DataCell(_getBubble(rep.label, textColor, background,
-            _textStyle, invert: true)));
+        dataRow.add(DataCell(_getBubble(
+            rep.label, textColor, background, _textStyle,
+            invert: true)));
         dataRow.add(DataCell(Text(
           rep.description,
           overflow: TextOverflow.ellipsis,
@@ -255,39 +259,38 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     }
 
     Widget dataTable = Theme(
-      data: Theme.of(context).copyWith(
-        dividerColor: Colors.transparent
-      ),
-      child: DataTable(
-      columnSpacing: 6,
-      dividerThickness: 1,
-      columns: columns,
-      rows: rows,
-      dataRowHeight: 36.0 + (_textStyle.fontSize?? 12.0),
-      headingRowHeight: 0,
-    ));
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: DataTable(
+          columnSpacing: 6,
+          dividerThickness: 1,
+          columns: columns,
+          rows: rows,
+          dataRowHeight: 36.0 + (_textStyle.fontSize ?? 12.0),
+          headingRowHeight: 0,
+        ));
 
     Widget grid = Container(
-          decoration: BoxDecoration(
-            color: background,
-            border: Border.all(color: background, width: 18),
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: const [
-              BoxShadow(color: shadow, blurRadius: 30, spreadRadius: 1)
-            ]
-          ),
-          child: (widget.helpText != null)?
-            Column(
+      decoration: BoxDecoration(
+          color: background,
+          border: Border.all(color: background, width: 18),
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [
+            BoxShadow(color: shadow, blurRadius: 30, spreadRadius: 1)
+          ]),
+      child: (widget.helpText != null)
+          ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(child: Markdown(data: widget.helpText!,)),
-                const Divider(height: 1.0, thickness: 1.0),
-                dataTable
-              ]
-            ):
-            dataTable,
-        );
+                  Expanded(
+                      child: Markdown(
+                    data: widget.helpText!,
+                  )),
+                  const Divider(height: 1.0, thickness: 1.0),
+                  dataTable
+                ])
+          : dataTable,
+    );
 
     return OverlayEntry(builder: (context) {
       return Positioned(
