@@ -231,9 +231,8 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         dataRow.add(modifiers.isNotEmpty
             ? DataCell(_getBubble(modifiers, textColor, background, _textStyle))
             : DataCell.empty);
-        dataRow.add(DataCell(_getBubble(
-            rep.label, textColor, background, _textStyle,
-            invert: true)));
+        dataRow.add(DataCell(_getBubble(rep.label, textColor, background,
+            _textStyle, invert: true)));
         dataRow.add(DataCell(Text(
           rep.description,
           overflow: TextOverflow.ellipsis,
@@ -255,20 +254,20 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       ));
     }
 
-    DataTable dataTable = DataTable(
+    Widget dataTable = Theme(
+      data: Theme.of(context).copyWith(
+        dividerColor: Colors.transparent
+      ),
+      child: DataTable(
       columnSpacing: 6,
       dividerThickness: 1,
       columns: columns,
       rows: rows,
       dataRowHeight: 36.0 + (_textStyle.fontSize?? 12.0),
       headingRowHeight: 0,
-    );
+    ));
 
-    Widget grid = Theme(
-        data: Theme.of(context).copyWith(
-          dividerColor: Colors.transparent,
-        ),
-        child: Container(
+    Widget grid = Container(
           decoration: BoxDecoration(
             color: background,
             border: Border.all(color: background, width: 18),
@@ -283,12 +282,12 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(child: Markdown(data: widget.helpText!,)),
-                Divider(color: textColor, height: 1.0, thickness: 1.0),
+                const Divider(height: 1.0, thickness: 1.0),
                 dataTable
               ]
             ):
             dataTable,
-        ));
+        );
 
     return OverlayEntry(builder: (context) {
       return Positioned(
