@@ -1,6 +1,6 @@
 name: keymap
 description: A reusable keyboard shortcuts widget with a flexible, minimal UI and focus handling.
-version: 0.0.5
+version: 0.0.7
 homepage: https://github.com/pmutisya/keymap
 
 environment:
@@ -8,6 +8,7 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  flutter_markdown: 0.6.9
   flutter:
     sdk: flutter
 

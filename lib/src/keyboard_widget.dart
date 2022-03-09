@@ -2,12 +2,19 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 /// A keymap widget allowing easy addition of shortcut keys to any widget tree
 /// with an optional help screen overlay
 class KeyboardWidget extends StatefulWidget {
   final bool hasFocus;
   final Widget child;
+
+  ///Optional introductory/descriptive text to include above the table of
+  ///keystroke shortcuts. It expects text in the
+  ///[https://daringfireball.net/projects/markdown/] markdown format, using
+  ///the [https://pub.dev/packages/flutter_markdown] flutter markdown package.
+  final String? helpText;
 
   ///The list of keystrokes and methods called
   final List<KeyAction> bindings;
@@ -52,6 +59,7 @@ class KeyboardWidget extends StatefulWidget {
   const KeyboardWidget({
     Key? key,
     required this.bindings,
+    this.helpText,
     this.hasFocus = true,
     required this.child,
     this.showDismissKey = LogicalKeyboardKey.f1,
@@ -247,24 +255,38 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       ));
     }
 
+    DataTable dataTable = DataTable(
+      columnSpacing: 6,
+      dividerThickness: 1,
+      columns: columns,
+      rows: rows,
+      dataRowHeight: 36.0 + (_textStyle.fontSize?? 12.0),
+      headingRowHeight: 0,
+    );
+
     Widget grid = Theme(
         data: Theme.of(context).copyWith(
           dividerColor: Colors.transparent,
         ),
-        child: DataTable(
-          columnSpacing: 6,
+        child: Container(
           decoration: BoxDecoration(
-              color: background,
-              border: Border.all(color: background, width: 18),
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: const [
-                BoxShadow(color: shadow, blurRadius: 30, spreadRadius: 1)
-              ]),
-          dividerThickness: 1,
-          columns: columns,
-          rows: rows,
-          dataRowHeight: 36.0 + (_textStyle.fontSize?? 12.0),
-          headingRowHeight: 0,
+            color: background,
+            border: Border.all(color: background, width: 18),
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: const [
+              BoxShadow(color: shadow, blurRadius: 30, spreadRadius: 1)
+            ]
+          ),
+          child: (widget.helpText != null)?
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(child: Markdown(data: widget.helpText!,)),
+                dataTable
+              ]
+            ):
+            dataTable,
         ));
 
     return OverlayEntry(builder: (context) {
@@ -297,6 +319,8 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     });
   }
 
+  ///Returns the keyboard widget on desktop platforms. It does not
+  ///provide shortcuts on IOS or Android
   @override
   Widget build(BuildContext context) {
     //to be sure, only use on non-mobile platforms
