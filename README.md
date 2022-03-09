@@ -17,7 +17,8 @@ dependencies:
 ## Features
 
 - Easily add keyboard shortcuts to any widget tree
-- Clear, readable help screen 
+- Clear, readable help screen
+- Allows rich text introductions with images using the Markdown format
 - Handles focus, passing up unhandled key events
 - Respects application theme colors and fonts
 
@@ -70,4 +71,10 @@ It will shift colors to match your app's theme (here in dark mode)
 
 <p>
     <img src="https://raw.githubusercontent.com/pmutisya/keymap/main/doc/dark_mode.png"/>
+</p>
+
+You can add rich text (using Markdown format) above the keyboard map
+
+<p>
+    <img src="https://raw.githubusercontent.com/pmutisya/keymap/main/doc/markdown.png"/>
 </p>

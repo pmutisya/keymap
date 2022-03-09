@@ -84,23 +84,11 @@ class _MyHomePageState extends State<MyHomePage> {
   //alt, etc.
   List<KeyAction> _getShortcuts() {
     return [
-      KeyAction(LogicalKeyboardKey.keyI,'increment the counter', _incrementCounter,),
-      KeyAction(LogicalKeyboardKey.keyD, 'decrement the counter', _decrementCounter,
-          isAltPressed: true, isControlPressed: true),
+      KeyAction(LogicalKeyboardKey.keyI,'increment', _incrementCounter,),
+      KeyAction(LogicalKeyboardKey.keyD, 'decrement', _decrementCounter),
       KeyAction(LogicalKeyboardKey.enter,'increase by 10',
-              (){ increaseBy(10); },
-          isControlPressed: true
-      ),
-      KeyAction(LogicalKeyboardKey.keyR,'reset the counter ', _resetCounter,
-          isMetaPressed: true
-      ),
-      KeyAction(LogicalKeyboardKey.keyM, 'multiply by 10',
-              () {
-            setState(() {
-              _counter = _counter*10;
-            });
-          }
-      )
+              (){ increaseBy(10); },),
+      KeyAction(LogicalKeyboardKey.keyR,'reset the counter ', _resetCounter,),
     ];
   }
 

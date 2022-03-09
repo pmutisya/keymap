@@ -1,6 +1,7 @@
-## Image
-You can include images
+## Images
 ![example image](resource:assets/flutter_logo.png)
+You can include images in your help screen as well as other
+formatted text.
 ## Emphasis
 It allows emojis 😀
 ## Tables
