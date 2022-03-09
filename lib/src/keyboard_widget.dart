@@ -283,6 +283,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(child: Markdown(data: widget.helpText!,)),
+                Divider(color: textColor, height: 1.0, thickness: 1.0),
                 dataTable
               ]
             ):
