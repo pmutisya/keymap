@@ -73,7 +73,8 @@ It will shift colors to match your app's theme (here in dark mode)
     <img src="https://raw.githubusercontent.com/pmutisya/keymap/main/doc/dark_mode.png"/>
 </p>
 
-You can add rich text (using Markdown format) above the keyboard map
+You can add rich text (using Markdown format) above the keyboard map. A code sample
+showing how to do this can be found in the examples directory
 
 <p>
     <img src="https://raw.githubusercontent.com/pmutisya/keymap/main/doc/markdown.png"/>
