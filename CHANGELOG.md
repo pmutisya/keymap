@@ -1,3 +1,5 @@
+## 0.0.81
+* Add stylesheet for default markdown options.
 ## 0.0.8
 * Add support for rich text, tables and images
 ## 0.0.5

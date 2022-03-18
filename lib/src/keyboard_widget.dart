@@ -270,6 +270,8 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         ));
 
     Widget grid = Container(
+      alignment: Alignment.center,
+      height: double.infinity, width: double.infinity,
       decoration: BoxDecoration(
           color: background,
           border: Border.all(color: background, width: 18),
@@ -279,14 +281,22 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
           ]),
       child: (widget.helpText != null)
           ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                   Expanded(
                       child: Markdown(
-                    data: widget.helpText!,
-                  )),
+                        shrinkWrap: true,
+                        data: widget.helpText!,
+                        styleSheet: MarkdownStyleSheet(
+                          h1: const TextStyle(fontWeight: FontWeight.bold),
+                          h1Align: WrapAlignment.center,
+                        ),
+                    )
+                  ),
                   const Divider(height: 1.0, thickness: 1.0),
+                  const SizedBox(height: 18,),
                   dataTable
                 ])
           : dataTable,
