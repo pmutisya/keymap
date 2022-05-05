@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:keymap/keymap.dart';
 
+///An example showing the keymap working with a dialog
+///containing text fields.
 void main() => runApp(
   const MaterialApp(title: 'Dialog Example',
     home: Material(child: DialogExample())));
