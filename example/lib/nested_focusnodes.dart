@@ -5,8 +5,8 @@ import 'package:keymap/keymap.dart';
 
 void main() => runApp(const MyApp());
 
-///An example showing using the keyboard widget with children containing
-///focus-aware widgets, like TextFields
+///An example of using the Keymap widget to implement keyboard
+///shortcuts
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -19,10 +19,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text(_title),),
         body: const Center(
-          child: Padding(
-            padding: EdgeInsets.all(30.0),
-            child: MyStatefulWidget(),
-          ),
+          child: MyStatefulWidget(),
         ),
       ),
     );
@@ -45,7 +42,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     return KeyboardWidget(
       columnCount: 2,
       bindings: [
-        KeyAction(LogicalKeyboardKey.keyU,'increment the counter', () {
+        KeyAction(LogicalKeyboardKey.keyA,'increment the counter', () {
             setState(() {
               count++;
           });},),
@@ -57,12 +54,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       ],
       child: Column(
         children: [
-          const Text('u for adding, down d to subtract'),
+          const Text('Press "a" for adding, "d" to subtract'),
           Text('count: $count'),
-          const TextField(
-            maxLength: 20, maxLines: 1,
-            decoration: InputDecoration(labelText: 'Try typing u and d'),),
-          ElevatedButton(onPressed: (){}, child: const Text('Other Focus')),
         ],
       ),
     );

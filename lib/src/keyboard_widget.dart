@@ -342,7 +342,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         Platform.isLinux ||
         Platform.isMacOS ||
         Platform.isWindows) {
-      FocusScope.of(context).requestFocus(_focusNode);
+      // FocusScope.of(context).requestFocus(_focusNode);
       return _getKeyboardListener(context);
     } else {
       return widget.child;
@@ -351,12 +351,12 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
 
   Widget _getKeyboardListener(BuildContext context) {
     return Focus(
-      child: widget.child,
+      child: FocusTraversalGroup(child: widget.child),
       canRequestFocus: true,
       descendantsAreFocusable: true,
       skipTraversal: true,
       focusNode: _focusNode,
-      autofocus: widget.hasFocus,
+      autofocus: false, //widget.hasFocus,
       onKey: (FocusNode node, RawKeyEvent event) {
         if (event.runtimeType == RawKeyDownEvent) {
           LogicalKeyboardKey key = event.logicalKey;
