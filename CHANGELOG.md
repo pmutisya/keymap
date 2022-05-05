@@ -1,3 +1,5 @@
+## 0.0.90
+*fixed numbering error
 ## 0.0.9
 *fixed issues 3, 4 and 5, allowing the widget to operate with dialogs and included TextFields
 and other focusable widgets
