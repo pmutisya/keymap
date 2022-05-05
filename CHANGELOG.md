@@ -1,3 +1,6 @@
+## 0.0.9
+*fixed issues 3, 4 and 5, allowing the widget to operate with dialogs and included TextFields
+and other focusable widgets
 ## 0.0.81
 * Add stylesheet for default markdown options.
 ## 0.0.8
