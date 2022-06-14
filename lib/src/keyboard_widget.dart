@@ -432,6 +432,16 @@ class KeyAction {
             alt: isAltPressed,
             meta: isMetaPressed);
 
+  ///Creates a key action from the first letter of any string [string] with,
+  ///[description] and [callback] method. Includes optional bool values (defaulting
+  ///to false) for key modifiers for meta [isMetaPressed], shift [isShiftPressed],
+  ///alt [isAltPressed]
+  KeyAction.fromString(String string, this.description, this.callback,
+  {bool isControlPressed = false, bool isMetaPressed = false, 
+  bool isShiftPressed = false, bool isAltPressed = false}) :
+    keyActivator = SingleActivator(LogicalKeyboardKey(string.toLowerCase().codeUnitAt(0)),
+    control: isControlPressed, shift: isShiftPressed, alt: isAltPressed, meta: isMetaPressed);
+      
   bool get isControlPressed => keyActivator.control;
 
   bool get isMetaPressed => keyActivator.meta;

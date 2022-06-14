@@ -29,7 +29,12 @@ class _TextFieldExampleState extends State<TextFieldExample> {
           return const AlertDialog(content: Text('Hello, world'),);
         });
       }),
-      KeyAction(LogicalKeyboardKey.keyA, 'Add 1', () {
+      KeyAction(LogicalKeyboardKey.keyS, 'Subtract 1', () {
+        setState(() {
+          count--;
+        });
+      }),
+      KeyAction.fromString("A", 'Add 1', () {
         setState(() {
           count++;
         });
