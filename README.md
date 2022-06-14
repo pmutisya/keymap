@@ -30,7 +30,7 @@ Add a KeyMap widget to your tree in the build method
 Widget build(BuildContext context) {
   return KeyboardWidget(
     bindings: [
-      KeyAction(LogicalKeyboardKey.keyA,'increment the counter', () {
+      KeyAction.fromString('A','increment the counter', () {
         setState(() {
           count++;
         });}, isControlPressed: true),

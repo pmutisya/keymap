@@ -24,7 +24,7 @@ class _TextFieldExampleState extends State<TextFieldExample> {
   void initState() {
     super.initState();
     bindings = [
-      KeyAction(LogicalKeyboardKey.keyD, 'open dialog', () {
+      KeyAction.fromString('D', 'open dialog', () {
         showDialog(context: context, builder: (context) {
           return const AlertDialog(content: Text('Hello, world'),);
         });
