@@ -86,7 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
   //alt, etc.
   List<KeyAction> _getShortcuts() {
     return [
-      KeyAction(LogicalKeyboardKey.keyI,'increment', _incrementCounter,),
+      KeyAction(LogicalKeyboardKey.arrowUp,'increment', _incrementCounter,),
+      KeyAction(LogicalKeyboardKey.keyI, 'increment', _incrementCounter),
       KeyAction(LogicalKeyboardKey.keyD, 'decrement', _decrementCounter),
       KeyAction(LogicalKeyboardKey.enter,'increase by 10',
               (){ increaseBy(10); },),
