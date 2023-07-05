@@ -257,13 +257,16 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
 
     Widget dataTable = Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: DataTable(
-          columnSpacing: 6,
-          dividerThickness: 1,
-          columns: columns,
-          rows: rows,
-          dataRowMinHeight: 36.0 + (_textStyle.fontSize ?? 12.0),
-          headingRowHeight: 0,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: DataTable(
+            columnSpacing: 6,
+            dividerThickness: 1,
+            columns: columns,
+            rows: rows,
+            dataRowMinHeight: 36.0 + (_textStyle.fontSize ?? 12.0),
+            headingRowHeight: 0,
+          ),
         ));
 
     Widget grid = Container(
@@ -292,7 +295,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
                         ),
                     )
                   ),
-                  const Divider(height: 1.0, thickness: 1.0),
+                  const Divider(height: 0.5, thickness: 0.5),
                   const SizedBox(height: 18,),
                   dataTable,
                 ])
@@ -347,7 +350,6 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
 
   Widget _getKeyboardListener(BuildContext context) {
     return Focus(
-      child: FocusTraversalGroup(child: widget.child),
       canRequestFocus: true,
       descendantsAreFocusable: true,
       skipTraversal: false,
@@ -377,6 +379,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
         }
         return KeyEventResult.ignored;
       },
+      child: FocusTraversalGroup(child: widget.child),
     );
   }
 
@@ -413,13 +416,15 @@ class KeyAction {
   final SingleActivator keyActivator;
   final String description;
   final VoidCallback callback;
+  final String? categoryHeader;
 
   ///Creates a KeystrokeRep with the given LogicalKeyboardKey [keyStroke],
   ///[description] and [callback] method. Includes optional bool values (defaulting
   ///to false) for key modifiers for meta [isMetaPressed], shift [isShiftPressed],
   ///alt [isAltPressed]
   KeyAction(LogicalKeyboardKey keyStroke, this.description, this.callback,
-      {bool isControlPressed = false,
+    { this.categoryHeader,
+      bool isControlPressed = false,
       bool isMetaPressed = false,
       bool isShiftPressed = false,
       bool isAltPressed = false})
@@ -434,7 +439,7 @@ class KeyAction {
   ///to false) for key modifiers for meta [isMetaPressed], shift [isShiftPressed],
   ///alt [isAltPressed]
   KeyAction.fromString(String string, this.description, this.callback,
-  {bool isControlPressed = false, bool isMetaPressed = false, 
+  {this.categoryHeader, bool isControlPressed = false, bool isMetaPressed = false,
   bool isShiftPressed = false, bool isAltPressed = false}) :
     keyActivator = SingleActivator(LogicalKeyboardKey(string.toLowerCase().codeUnitAt(0)),
     control: isControlPressed, shift: isShiftPressed, alt: isAltPressed, meta: isMetaPressed);
