@@ -1,4 +1,4 @@
-## 0.0.91
+## 0.0.92
 *fixed vertical alignment when the widget has both help text and shortcuts
 *updated dependencies
 *allow usage on mobile devices (with attached bluetooth keyboards)
