@@ -336,19 +336,6 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   ///provide shortcuts on IOS or Android
   @override
   Widget build(BuildContext context) {
-    //to be sure, only use on non-mobile platforms
-    if (kIsWeb ||
-        Platform.isFuchsia ||
-        Platform.isLinux ||
-        Platform.isMacOS ||
-        Platform.isWindows) {
-      return _getKeyboardListener(context);
-    } else {
-      return widget.child;
-    }
-  }
-
-  Widget _getKeyboardListener(BuildContext context) {
     return Focus(
       canRequestFocus: true,
       descendantsAreFocusable: true,
