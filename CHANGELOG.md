@@ -1,3 +1,6 @@
+## 0.0.91
+*fixed vertical alignment when the widget has both help text and shortcuts
+*updated dependencies
 ## 0.0.90
 *fixed numbering error
 ## 0.0.9

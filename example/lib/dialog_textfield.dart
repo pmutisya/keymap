@@ -40,11 +40,11 @@ class _DialogExampleState extends State<DialogExample> {
         builder: (context) {
           return AlertDialog(
             title: const Text('Enter email and password'),
-            content: Padding(
-              padding: const EdgeInsets.all(8.0),
+            content: const Padding(
+              padding: EdgeInsets.all(8.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   TextField(decoration: InputDecoration(hintText: 'Email'),),
                   TextField(decoration: InputDecoration(
                       hintText: 'Password'), obscureText: true,

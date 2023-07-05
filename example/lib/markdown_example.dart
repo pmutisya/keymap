@@ -4,6 +4,7 @@ import 'package:keymap/keymap.dart';
 
 ///This example shows how to include help text in addition to the
 ///list of key shortcuts in Markdown format
+///The help text includes tables, images and formatted text
 void main() {
   runApp(const MyApp());
 }
@@ -46,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     shortcuts = _getShortcuts();
+    //load the help text asynchronously
     loadAssetText();
   }
 
@@ -110,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Text(
                 '$_counter',
-                style: Theme.of(context).textTheme.headline4,
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
             ],
           ),
