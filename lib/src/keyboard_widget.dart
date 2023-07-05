@@ -243,8 +243,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
           style: _textStyle,
         )));
       }
-      for (int k = widget.bindings.length;
-          k < rowCount * widget.columnCount;
+      for (int k = widget.bindings.length; k < rowCount * widget.columnCount;
           k++) {
         dataRow.add(DataCell.empty);
         dataRow.add(DataCell.empty);
@@ -253,9 +252,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     }
     List<DataRow> rows = [];
     for (List<DataCell> cells in tableRows) {
-      rows.add(DataRow(
-        cells: cells,
-      ));
+      rows.add(DataRow(cells: cells,));
     }
 
     Widget dataTable = Theme(
@@ -265,7 +262,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
           dividerThickness: 1,
           columns: columns,
           rows: rows,
-          dataRowHeight: 36.0 + (_textStyle.fontSize ?? 12.0),
+          dataRowMinHeight: 36.0 + (_textStyle.fontSize ?? 12.0),
           headingRowHeight: 0,
         ));
 
@@ -282,10 +279,10 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       child: (widget.helpText != null)
           ? Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                  Expanded(
+                  Flexible(
                       child: Markdown(
                         shrinkWrap: true,
                         data: widget.helpText!,
@@ -297,7 +294,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
                   ),
                   const Divider(height: 1.0, thickness: 1.0),
                   const SizedBox(height: 18,),
-                  dataTable
+                  dataTable,
                 ])
           : dataTable,
     );
@@ -388,7 +385,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       if (!showingOverlay) {
         showingOverlay = true;
         _overlayEntry = _buildOverlay();
-        Overlay.of(context)!.insert(_overlayEntry);
+        Overlay.of(context).insert(_overlayEntry);
       } else {
         if (showingOverlay) {
           _hideOverlay();
