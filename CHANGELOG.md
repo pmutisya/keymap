@@ -1,6 +1,9 @@
 ## 0.0.91
 *fixed vertical alignment when the widget has both help text and shortcuts
 *updated dependencies
+*allow usage on mobile devices (with attached bluetooth keyboards)
+*fix overscroll for long lists of help shortcuts
+*fix shortcuts not working on web after restart
 ## 0.0.90
 *fixed numbering error
 ## 0.0.9
