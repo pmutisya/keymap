@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:keymap/keymap.dart';
 
 void main() => runApp(
@@ -18,12 +19,14 @@ class CategoryHeaderExample extends StatefulWidget {
 class _CategoryHeaderExampleState extends State<CategoryHeaderExample> {
   int count = 0;
   late List<KeyAction> bindings;
+  bool showCategories = true;
+  bool showLines = false;
 
   @override
   void initState() {
     super.initState();
     bindings = [
-      KeyAction.fromString('I', 'Increase the counter',
+      KeyAction.fromString('I', 'Increase',
         categoryHeader: 'Counter',
         () {
           setState(() {
@@ -31,7 +34,7 @@ class _CategoryHeaderExampleState extends State<CategoryHeaderExample> {
           }
         );
       }),
-      KeyAction.fromString('5', 'Increase the counter by 5',
+      KeyAction.fromString('5', 'Increase by 5',
         isShiftPressed: true, isControlPressed: true,
         categoryHeader: 'Counter',
         () {
@@ -40,7 +43,7 @@ class _CategoryHeaderExampleState extends State<CategoryHeaderExample> {
           }
         );
       }),
-      KeyAction.fromString('5', 'Decrease the counter by 5',
+      KeyAction.fromString('5', 'Decrease by 5',
         isShiftPressed: true,
         categoryHeader: 'Counter',
         () {
@@ -49,7 +52,7 @@ class _CategoryHeaderExampleState extends State<CategoryHeaderExample> {
           }
         );
       }),
-      KeyAction.fromString('D', 'Decrease the counter',
+      KeyAction.fromString('D', 'Decrease',
         categoryHeader: 'Counter',
         () { setState(() {
           count--;
@@ -70,7 +73,7 @@ class _CategoryHeaderExampleState extends State<CategoryHeaderExample> {
           }
       ),
 
-      KeyAction.fromString('I', 'Increase',
+      KeyAction(LogicalKeyboardKey.arrowUp, 'Increase',
         categoryHeader: 'Secondary Counter',
         () {
           setState(() {
@@ -78,7 +81,7 @@ class _CategoryHeaderExampleState extends State<CategoryHeaderExample> {
           }
         );
       }),
-      KeyAction.fromString('5', 'Increase by 5',
+      KeyAction(LogicalKeyboardKey.arrowUp, 'Increase by 5',
         isShiftPressed: true, isControlPressed: true,
         categoryHeader: 'Secondary Counter',
         () {
@@ -87,7 +90,7 @@ class _CategoryHeaderExampleState extends State<CategoryHeaderExample> {
           }
         );
       }),
-      KeyAction.fromString('5', 'Decrease by 5',
+      KeyAction(LogicalKeyboardKey.arrowDown, 'Decrease by 5',
         isShiftPressed: true,
         categoryHeader: 'Secondary Counter',
         () {
@@ -96,7 +99,7 @@ class _CategoryHeaderExampleState extends State<CategoryHeaderExample> {
           }
         );
       }),
-      KeyAction.fromString('D', 'Decrease',
+      KeyAction(LogicalKeyboardKey.arrowDown, 'Decrease',
         categoryHeader: 'Secondary Counter',
         () { setState(() {
           count--;
@@ -107,14 +110,34 @@ class _CategoryHeaderExampleState extends State<CategoryHeaderExample> {
   @override
   Widget build(BuildContext context) {
     return KeyboardWidget(bindings: bindings,
-      showLines: true,
-      groupByCategory: true,
+      showLines: showLines,
+      groupByCategory: showCategories,
         // columnCount: 2,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: [
           Text('The count is $count'),
+          SwitchListTile(
+            controlAffinity: ListTileControlAffinity.leading,
+            value: showCategories,
+            visualDensity: VisualDensity.compact,
+            title: const Text('Show categories'),
+            onChanged: (selected){
+              setState(() {
+                showCategories = selected;
+              });
+          }),
+          SwitchListTile(
+            controlAffinity: ListTileControlAffinity.leading,
+            value: showLines,
+            visualDensity: VisualDensity.compact,
+            title: const Text('Show lines'),
+            onChanged: (selected){
+              setState(() {
+                showLines = selected;
+              });
+          }),
         ],
       ));
   }

@@ -328,7 +328,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       data: data.copyWith(dividerColor: dividerColor),
       child: DataTable(columns: columns, rows: rows,
         columnSpacing: 2, dividerThickness: 1,
-        dataRowMinHeight: (_textStyle.fontSize?? 12.0),
+        dataRowMinHeight: 4 + (_textStyle.fontSize?? 12.0),
         dataRowMaxHeight: 18 + (_textStyle.fontSize?? 12.0),
         headingRowHeight: 0,
       ),
@@ -349,10 +349,10 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
   }
 
   OverlayEntry _buildOverlay() {
-    final ThemeData theme = Theme.of(context);
+    final ThemeData themeData = Theme.of(context);
     TextStyle _textStyle =
-        widget.textStyle ?? theme.textTheme.labelSmall ?? defaultTextStyle;
-    Color background = widget.backgroundColor ?? theme.cardColor;
+        widget.textStyle ?? themeData.textTheme.labelSmall ?? defaultTextStyle;
+    Color background = widget.backgroundColor ?? themeData.cardColor;
     Color textColor = _textStyle.color ?? defaultTextColor;
 
     final MediaQueryData media = MediaQuery.of(context);
@@ -416,16 +416,18 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       rows.add(DataRow(cells: cells,));
     }
 
+    Color dividerColor = widget.showLines? themeData.dividerColor : Colors.transparent;
     Widget dataTable = Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        data: Theme.of(context).copyWith(dividerColor: dividerColor),
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: DataTable(
-            columnSpacing: 6,
+            columnSpacing: 2,
             dividerThickness: 1,
             columns: columns,
             rows: rows,
-            dataRowMinHeight: 36.0 + (_textStyle.fontSize ?? 12.0),
+            dataRowMinHeight: 4 + (_textStyle.fontSize ?? 12.0),
+            dataRowMaxHeight: 20 + (_textStyle.fontSize ?? 12.0),
             headingRowHeight: 0,
           ),
         ));
@@ -435,8 +437,8 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
       height: double.infinity, width: double.infinity,
       decoration: BoxDecoration(
           color: background,
-          border: Border.all(color: background, width: 18),
-          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: background, width: 12),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(color: shadow, blurRadius: 30, spreadRadius: 1)
           ]),
@@ -535,7 +537,8 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     setState(() {
       if (!showingOverlay) {
         showingOverlay = true;
-        _overlayEntry = _buildCategoryOverlay();
+        _overlayEntry = widget.groupByCategory? _buildCategoryOverlay() :
+            _buildOverlay();
         Overlay.of(context).insert(_overlayEntry);
       } else {
         if (showingOverlay) {
