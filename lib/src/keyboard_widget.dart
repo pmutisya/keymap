@@ -16,6 +16,10 @@ class KeyboardWidget extends StatefulWidget {
   ///the [https://pub.dev/packages/flutter_markdown] flutter markdown package.
   final String? helpText;
 
+  ///Have group the keybindings shown in the overlay grouped according to
+  ///the (optional) headers associated with each shortcut
+  final bool groupByCategory;
+
   ///The list of keystrokes and methods called
   final List<KeyAction> bindings;
 
@@ -30,6 +34,9 @@ class KeyboardWidget extends StatefulWidget {
   ///The color of the surface of the card used to display a help screen.
   ///If null, the card color of the inherited [ThemeData.colorScheme] will be used
   final Color? backgroundColor;
+
+  ///Whether underlines should be shown between each help entry
+  final bool showLines;
 
   ///The text style for the text used in the help screen. If null, the
   ///inherited [TextTheme.labelSmall] is used.
@@ -63,8 +70,10 @@ class KeyboardWidget extends StatefulWidget {
     this.hasFocus = true,
     required this.child,
     this.showDismissKey = LogicalKeyboardKey.f1,
+    this.groupByCategory = false,
     this.columnCount = 1,
     this.backgroundColor,
+    this.showLines = false,
     this.textStyle,
     this.showMap = false,
     this.callbackOnHide,
@@ -109,12 +118,22 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     super.dispose();
   }
 
+  Widget _getAltText(String text, TextStyle _textStyle,) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      child: Text(text,
+      style: _textStyle,),
+    );
+  }
+
   //returns text surrounded with a rounded-rect
   Widget _getBubble(
       String text, Color color, Color color2, TextStyle _textStyle,
       {bool invert = false}) {
     // bool isDark = background.computeLuminance() < .5;
     return Container(
+      margin: const EdgeInsets.only(left: 6),
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
           color: invert ? color : color2,
@@ -178,6 +197,157 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
 
   static const double horizontalMargin = 16.0;
 
+  Map<String, List<KeyAction>> _getBindingsMap() {
+    Map<String, List<KeyAction>> map = {};
+    for (KeyAction ka in widget.bindings) {
+      String category = ka.categoryHeader;
+      if (!map.containsKey(category)) {
+        map[category] = <KeyAction>[];
+      }
+      map[category]!.add(ka);
+    }
+    return map;
+  }
+
+  OverlayEntry _buildCategoryOverlay() {
+    final ThemeData theme = Theme.of(context);
+    TextStyle? bodyText = theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold);
+    TextStyle _categoryTextStyle = bodyText??
+        const TextStyle().copyWith(fontWeight: FontWeight.bold);
+
+    Map<String, List<KeyAction>> map = _getBindingsMap();
+    int length = map.length + widget.bindings.length;
+
+    final MediaQueryData media = MediaQuery.of(context);
+    Size size = media.size;
+    List<List<DataCell>> tableRows = [];
+    for (int k = 0; k < length; k++) {
+      tableRows.add(<DataCell>[]);
+    }
+
+
+    List<Widget> rows = [];
+    for (String category in map.keys) {
+      Container header = Container(
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(width: 2.0)),
+        ),
+        padding: const EdgeInsets.only(top: 6),
+        child: Text(category,
+        style: _categoryTextStyle,));
+      rows.add(header);
+
+      List<KeyAction> actions = map[category]!;
+      Widget table = _getTableForActions(actions);
+      rows.add(table);
+    }
+    Widget dataTable = SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: ListView(
+        shrinkWrap: true,
+        children: rows,
+      ),
+    );
+
+    return OverlayEntry(
+      builder: (context) {
+        return Positioned(
+          child: GestureDetector(
+            onTap: () {_hideOverlay();},
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(horizontalMargin),
+              width: size.width, height: size.height,
+              decoration: const BoxDecoration(color: Colors.white),
+              child: Material(
+                color: Colors.transparent,
+                child: Center(
+                  child: Container(padding: const EdgeInsets.all(18),
+                    alignment: Alignment.center,
+                    child: dataTable,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }
+    );
+  }
+
+  Widget _getTableForActions(List<KeyAction> actions) {
+    int colCount = widget.columnCount;
+    final ThemeData theme = Theme.of(context);
+    TextStyle _textStyle = widget.textStyle ??
+        theme.textTheme.labelSmall ?? defaultTextStyle;
+    TextStyle _altTextStyle = _textStyle.copyWith(fontWeight: FontWeight.bold);
+    Color background = widget.backgroundColor ?? theme.cardColor;
+    Color textColor = _textStyle.color ?? defaultTextColor;
+
+    List<DataColumn> columns = [];
+    for (int k =0; k < colCount; k++) {
+      columns.add(const DataColumn(label: Text('d')));
+      columns.add(const DataColumn(label: Text('m'), numeric: true));
+      columns.add(const DataColumn(label: Text('k')));
+    }
+
+    int rowCount= (actions.length/colCount).ceil();
+    int fullRows = actions.length ~/ colCount;
+
+    List<List<DataCell>> tableRows = [];
+    for (int k = 0; k < rowCount; k++) {
+      tableRows.add(<DataCell>[]);
+    }
+
+    for (int k = 0; k < fullRows; k++) {
+      List<DataCell> dataRow = tableRows[k];
+      for (int t = 0; t < colCount; t++) {
+        KeyAction rep = actions[k*colCount + t];
+        dataRow.addAll(_getDataRow(rep, _textStyle, _altTextStyle, background, textColor));
+      }
+    }
+    if (actions.length % colCount != 0) {
+      for (int k = fullRows * colCount; k < actions.length; k++) {
+        KeyAction rep = actions[k];
+        tableRows[k].addAll(_getDataRow(rep, _textStyle, _altTextStyle, background, textColor));
+      }
+      for (int k = actions.length; k < rowCount*colCount; k++) {
+        tableRows[k].add(DataCell.empty);
+        tableRows[k].add(DataCell.empty);
+        tableRows[k].add(DataCell.empty);
+      }
+    }
+    List<DataRow> rows = [];
+    for (List<DataCell> cells in tableRows) {
+      rows.add(DataRow(cells: cells));
+    }
+
+    ThemeData data = Theme.of(context);
+    Color dividerColor = widget.showLines? data.dividerColor : Colors.transparent;
+    return Theme(
+      data: data.copyWith(dividerColor: dividerColor),
+      child: DataTable(columns: columns, rows: rows,
+        columnSpacing: 2, dividerThickness: 1,
+        dataRowMinHeight: (_textStyle.fontSize?? 12.0),
+        dataRowMaxHeight: 18 + (_textStyle.fontSize?? 12.0),
+        headingRowHeight: 0,
+      ),
+    );
+  }
+
+  List<DataCell> _getDataRow(KeyAction rep, TextStyle _textStyle, TextStyle _altTextStyle,
+    Color background, Color textColor) {
+    List<DataCell> dataRow = [];
+    String modifiers = _getModifiers(rep);
+    dataRow.add(DataCell(
+        Text(rep.description, overflow: TextOverflow.ellipsis, style: _textStyle,)
+    ));
+    dataRow.add(modifiers.isNotEmpty? DataCell(_getBubble(modifiers, textColor, background, _altTextStyle)) :
+    DataCell.empty);
+    dataRow.add(DataCell(_getAltText(rep.label, _altTextStyle), ));
+    return dataRow;
+  }
+
   OverlayEntry _buildOverlay() {
     final ThemeData theme = Theme.of(context);
     TextStyle _textStyle =
@@ -196,52 +366,43 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     }
     List<DataColumn> columns = [];
     for (int k = 0; k < widget.columnCount; k++) {
-      columns
-          .add(const DataColumn(label: Text('m'), numeric: true)); //right-align
-      columns.add(const DataColumn(label: Text('k')));
       columns.add(const DataColumn(label: Text('d')));
+      columns.add(const DataColumn(label: Text('m'), numeric: true));
+      columns.add(const DataColumn(label: Text('k')));
     }
-    int fullRows = widget.bindings.length ~/ widget.columnCount;
+    int fullRows = length ~/ widget.columnCount;
     for (int k = 0; k < fullRows; k++) {
       List<DataCell> dataRow = tableRows[k];
       for (int t = 0; t < widget.columnCount; t++) {
         KeyAction rep = widget.bindings[k * widget.columnCount + t];
         String modifiers = _getModifiers(rep);
+
+        dataRow.add(
+          DataCell(Text(rep.description, overflow: TextOverflow.ellipsis, style: _textStyle,
+            ),
+          ),
+        );
         dataRow.add(modifiers.isNotEmpty
             ? DataCell(_getBubble(modifiers, textColor, background, _textStyle,
                 invert: true))
             : DataCell.empty);
-        dataRow.add(
-            DataCell(_getBubble(rep.label, textColor, background, _textStyle)));
-        dataRow.add(
-          DataCell(
-            Text(
-              rep.description,
-              overflow: TextOverflow.ellipsis,
-              style: _textStyle,
-            ),
-          ),
-        );
+        dataRow.add(DataCell(_getBubble(rep.label, textColor, background, _textStyle)));
       }
     }
     if (widget.bindings.length % widget.columnCount != 0) {
       List<DataCell> dataRow = tableRows[fullRows];
-      for (int k = fullRows * widget.columnCount;
-          k < widget.bindings.length;
-          k++) {
+      for (int k = fullRows * widget.columnCount; k < widget.bindings.length; k++) {
         KeyAction rep = widget.bindings[k];
         String modifiers = _getModifiers(rep);
-        dataRow.add(modifiers.isNotEmpty
-            ? DataCell(_getBubble(modifiers, textColor, background, _textStyle))
-            : DataCell.empty);
-        dataRow.add(DataCell(_getBubble(
-            rep.label, textColor, background, _textStyle,
-            invert: true)));
         dataRow.add(DataCell(Text(
           rep.description,
           overflow: TextOverflow.ellipsis,
           style: _textStyle,
         )));
+        dataRow.add(modifiers.isNotEmpty
+            ? DataCell(_getBubble(modifiers, textColor, background, _textStyle))
+            : DataCell.empty);
+        dataRow.add(DataCell(_getBubble(rep.label, textColor, background, _textStyle, invert: true)));
       }
       for (int k = widget.bindings.length; k < rowCount * widget.columnCount;
           k++) {
@@ -374,7 +535,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     setState(() {
       if (!showingOverlay) {
         showingOverlay = true;
-        _overlayEntry = _buildOverlay();
+        _overlayEntry = _buildCategoryOverlay();
         Overlay.of(context).insert(_overlayEntry);
       } else {
         if (showingOverlay) {
@@ -397,20 +558,21 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
 
 ///A combination of a [LogicalKeyboardKey] (e.g., control-shift-A), a description
 ///of what action that keystroke should trigger (e.g., "select all text"),
-///and a callback method to be invoked when that keystroke is pressed.
+///and a callback method to be invoked when that keystroke is pressed. Optionally
+///includes a category header for the shortcut.
 @immutable
 class KeyAction {
   final SingleActivator keyActivator;
   final String description;
   final VoidCallback callback;
-  final String? categoryHeader;
+  final String categoryHeader;
 
   ///Creates a KeystrokeRep with the given LogicalKeyboardKey [keyStroke],
   ///[description] and [callback] method. Includes optional bool values (defaulting
   ///to false) for key modifiers for meta [isMetaPressed], shift [isShiftPressed],
   ///alt [isAltPressed]
   KeyAction(LogicalKeyboardKey keyStroke, this.description, this.callback,
-    { this.categoryHeader,
+    { this.categoryHeader = '',
       bool isControlPressed = false,
       bool isMetaPressed = false,
       bool isShiftPressed = false,
@@ -426,7 +588,7 @@ class KeyAction {
   ///to false) for key modifiers for meta [isMetaPressed], shift [isShiftPressed],
   ///alt [isAltPressed]
   KeyAction.fromString(String string, this.description, this.callback,
-  {this.categoryHeader, bool isControlPressed = false, bool isMetaPressed = false,
+  {this.categoryHeader = '', bool isControlPressed = false, bool isMetaPressed = false,
   bool isShiftPressed = false, bool isAltPressed = false}) :
     keyActivator = SingleActivator(LogicalKeyboardKey(string.toLowerCase().codeUnitAt(0)),
     control: isControlPressed, shift: isShiftPressed, alt: isAltPressed, meta: isMetaPressed);
