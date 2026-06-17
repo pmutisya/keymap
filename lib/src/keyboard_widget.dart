@@ -2,7 +2,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
 /// A keymap widget allowing easy addition of shortcut keys to any widget tree
 /// with an optional help screen overlay
@@ -122,8 +123,7 @@ class KeyboardWidgetState extends State<KeyboardWidget> {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      child: Text(text,
-      style: _textStyle,),
+      child: Text(text, style: _textStyle,),
     );
   }
 
